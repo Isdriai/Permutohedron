@@ -32,7 +32,7 @@ let rec mahonian r c =
 	!res
 	
 
-let lehmer index rang = 
+let lehmer rang index = 
 
 	let limite = index*rang in (*Pour eviter de travailler avec des flottants*)
 
@@ -44,24 +44,25 @@ let lehmer index rang =
 
 	let rec lehm col reste acc =
 
-		if col > 2 then 
-			
-			let mah = mahonian (col-1) (rang-1) in 
+		Printf.printf "reste %d \n" reste; flush stdout;
+
+		if reste <> 0 && col > 1 then
+			let mah = mahonian col (rang-1) in 
 			let cb = reste / mah in 
-			let r = reste - cb * mah in 
 
-			Printf.printf "mah %d cb %d r %d \n" mah cb r; 
-			affiche_acc acc ;
+			lehm (col-1) (reste - cb * mah) (cb::acc)
 
-			lehm (col-1) r (cb::acc)
-		
-		else
+		else if col > 1 then
+
+			lehm (col-1) reste (reste::acc)
+
+		else 
 			(reste::acc)
 
-
+		
 	in
 
-	let test = lehm n limite [] in affiche_acc test; test
+	let test = lehm (n-1) limite [] in affiche_acc test; test
 
 let permut_to_lehmer leh =
 
@@ -114,4 +115,4 @@ let unrank rang index =
 	affiche permut
 
 let () =
-	unrank (int_of_string Sys.argv.(1)) (int_of_string Sys.argv.(2))
+	unrank (int_of_string Sys.argv.(2)) (int_of_string Sys.argv.(1))
