@@ -1,4 +1,4 @@
-let n = 3 
+let n = 4
 
 let fact n = 
 	let rec factorielle x acc =
@@ -36,20 +36,32 @@ let lehmer index rang =
 
 	let limite = index*rang in (*Pour eviter de travailler avec des flottants*)
 
+	let rec affiche_acc l =
+		match l with
+		| a::b-> Printf.printf "%d " a ; flush stdout ; affiche_acc b
+		| [] -> Printf.printf "\n\n"
+	in
+
 	let rec lehm col reste acc =
 
-		let maho = mahonian rang (col-1) in
-		let mult = reste/maho in
-		let r = reste - (mult*maho) in 
+		if col > 2 then 
+			
+			let mah = mahonian (col-1) (rang-1) in 
+			let cb = reste / mah in 
+			let r = reste - cb * mah in 
 
-		if r > 0 then 
-			lehm (col-1) r (mult::acc)
+			Printf.printf "mah %d cb %d r %d \n" mah cb r; 
+			affiche_acc acc ;
+
+			lehm (col-1) r (cb::acc)
+		
 		else
-			acc
+			(reste::acc)
+
 
 	in
 
-	lehm n limite []
+	let test = lehm n limite [] in affiche_acc test; test
 
 let permut_to_lehmer leh =
 
@@ -92,7 +104,7 @@ let permut_to_lehmer leh =
 
 let rec affiche l = 
 	match l with
-	| a::b -> Printf.printf "%d" a ; affiche b
+	| a::b -> (* Printf.printf "%d" a ; *) affiche b
 	| [] -> Printf.printf "\n"
 
 
@@ -102,4 +114,4 @@ let unrank rang index =
 	affiche permut
 
 let () =
-	unrank 2 2
+	unrank (int_of_string Sys.argv.(1)) (int_of_string Sys.argv.(2))
