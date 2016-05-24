@@ -53,7 +53,7 @@ let lehmer index rang =
 
 let permut_to_lehmer leh =
 
-	let possibles = (*liste des nombres allant de 1 à n*)
+	let possibles = (*liste les nombres allant de 1 à n*)
 		let rec construct i acc = 
 			if i < n then 
 				construct (i+1) (i::acc)
@@ -71,22 +71,23 @@ let permut_to_lehmer leh =
 			| [] -> acc
 		in 
 
-		rg_nbr [] 0
+		rg_nbr liste 0
 	in
 
 	let rec search rang liste =
 		match liste with
 		| p::a::b -> if rang = rang_nbr a liste then (a, (p::b)) else search rang b
 		| a::b -> if rang = rang_nbr a liste then (a, b) else search rang b
-		| [] -> (0,[]) (*ce cas ne dois jamais arriver !*)
+		| [] -> (0,[]) (*ce cas ne doit jamais arriver !*)
+	in
 
 	let rec trans lehm reste acc = 
 		match lehm with
-		| a::b -> let (rang, res ) = search a reste in lehm res (rang::acc)
+		| a::b -> let (rang, res ) = search a reste in trans b res (rang::acc)
 		| [] -> acc
 	in
 
-	trans leh possibles
+	trans leh possibles []
 
 
 let rec affiche l = 
@@ -101,3 +102,4 @@ let unrank rang index =
 	affiche permut
 
 let () =
+	unrank 2 2
