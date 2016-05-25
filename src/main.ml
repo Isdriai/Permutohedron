@@ -1,4 +1,10 @@
-let n = 4
+let n = 3
+
+
+let rec affiche l = 
+	match l with
+	| a::b -> (* Printf.printf "%d" a ; *) affiche b
+	| [] -> Printf.printf "\n"
 
 let fact n = 
 	let rec factorielle x acc =
@@ -34,6 +40,28 @@ let rec mahonian r c =
 
 let matrice = Hashtbl.create 1
 
+let rec construction r niv = 
+
+		if r = 0 then  begin Hashtbl.add matrice (r,niv) (1,1::[]) end
+		else if r >= niv && niv > 0 then begin Hashtbl.add matrice (r,niv) (0,[]) end 
+		else
+		let rec col acc c tot=
+			let ligne = r-c in 
+
+			if ligne >= 0 then begin 
+				try
+					let (valeur,_) = Hashtbl.find matrice (ligne, niv-1)	in 
+					col (valeur::acc) (c+1) (tot+valeur)
+				with Not_found -> construction ligne (niv-1) ; col acc c tot
+			end
+			else
+				Hashtbl.add matrice (r,niv) (tot,List.rev_append acc [])
+
+		in 
+
+		col [] 0 0
+
+
 
 let lehmer rang index = 
 
@@ -49,34 +77,9 @@ let lehmer rang index =
 	 	parc dec i 0
 	in
 
-	let rec construction r niv = 
-(* 		Printf.printf "construction r %d niv %d \n" r niv ; flush stdout ;
- *)
-		if r >= niv then Hashtbl.add matrice (r,niv) (0,[])
-		else
-
-		let rec col acc c tot=
-(* 			Printf.printf "col\n c %d tot %d " c tot ; flush stdout ;
- *)			let ligne = r-c in 
-
-			if ligne >= 0 then begin 
-				try
-					let (valeur,_) = Hashtbl.find matrice (ligne, niv-1)	in 
-					col (valeur::acc) (c+1) (tot+valeur)
-				with Not_found -> construction ligne (niv-1) ; col acc c tot
-			end
-			else
-				Hashtbl.add matrice (r,niv) (tot,acc)
-
-		in 
-
-		col [] 0 0
-
- 	in
 
 	let rec rec_lehmer r i nbr acc=
-(* 		Printf.printf "rec_lehmer\n" ; flush stdout ;
- *)
+
 		if nbr = 1 && r = 0 then (0::acc) (*on aurait pu ecrire (Hashtbl.find matrice (r,nbr) )::acc*)
 		else
 			try 
@@ -131,16 +134,24 @@ let permut_to_lehmer leh =
 
 let rec affiche l = 
 	match l with
-	| a::b -> (* Printf.printf "%d" a ; *) affiche b
-	| [] -> Printf.printf "\n"
+	| a::b ->  Printf.printf "%d " a ; affiche b
+	| [] -> Printf.printf "[]\n"
 
+let debug () = 
+	Hashtbl.iter (fun (x,y) (tot, liste) -> Printf.printf "x %d y %d tot %d liste " x y tot ; 
+											affiche liste ;
+											Printf.printf "\n" ) matrice 
 
 let unrank rang index = 
-	let leh = lehmer index rang in 
-	affiche leh;
+
+	construction 2 3; 
+	debug ()
+
+	(* let leh = lehmer rang index in 
+	debug ();
 	let permut = permut_to_lehmer leh in (*la permutation est sous forme de liste *)
-	affiche permut
+	affiche permut *)
 
 let () =
-	Hashtbl.add matrice (0,1) (1,1::[]);
-	unrank 1 1
+	Hashtbl.add matrice (0,1) (1,(1::[]));
+	unrank 1 0
