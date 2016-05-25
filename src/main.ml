@@ -32,37 +32,63 @@ let rec mahonian r c =
 	!res
 	
 
+let matrice = Hashtbl.create 1
+
+
 let lehmer rang index = 
 
-	let limite = index*rang in (*Pour eviter de travailler avec des flottants*)
+	let parcourt dec i =
 
-	let rec affiche_acc l =
-		match l with
-		| a::b-> Printf.printf "%d " a ; flush stdout ; affiche_acc b
-		| [] -> Printf.printf "\n\n"
+
+		let rec parc d reste c = 
+			match d with
+			| a::b -> if a > reste then (reste, c) else parc b (reste-a) (c+1)
+			| [] -> (0,0) (*n'arrive jamais*)
+	 	in
+
+	 	parc dec i 0
 	in
 
-	let rec lehm col reste acc =
+	let rec construction r niv = 
+(* 		Printf.printf "construction r %d niv %d \n" r niv ; flush stdout ;
+ *)
+		if r >= niv then Hashtbl.add matrice (r,niv) (0,[])
+		else
 
-		Printf.printf "reste %d \n" reste; flush stdout;
+		let rec col acc c tot=
+(* 			Printf.printf "col\n c %d tot %d " c tot ; flush stdout ;
+ *)			let ligne = r-c in 
 
-		if reste <> 0 && col > 1 then
-			let mah = mahonian col (rang-1) in 
-			let cb = reste / mah in 
+			if ligne >= 0 then begin 
+				try
+					let (valeur,_) = Hashtbl.find matrice (ligne, niv-1)	in 
+					col (valeur::acc) (c+1) (tot+valeur)
+				with Not_found -> construction ligne (niv-1) ; col acc c tot
+			end
+			else
+				Hashtbl.add matrice (r,niv) (tot,acc)
 
-			lehm (col-1) (reste - cb * mah) (cb::acc)
+		in 
 
-		else if col > 1 then
+		col [] 0 0
 
-			lehm (col-1) reste (reste::acc)
+ 	in
 
-		else 
-			(reste::acc)
+	let rec rec_lehmer r i nbr acc=
+(* 		Printf.printf "rec_lehmer\n" ; flush stdout ;
+ *)
+		if nbr = 1 && r = 0 then (0::acc) (*on aurait pu ecrire (Hashtbl.find matrice (r,nbr) )::acc*)
+		else
+			try 
+				let (_,decoupage) = Hashtbl.find matrice (r, nbr) in 
+				let (new_index, res) = parcourt decoupage i in 
+				rec_lehmer (r-res) new_index (nbr-1) (res::acc)
 
-		
-	in
+			with Not_found -> construction r nbr ; rec_lehmer r i nbr acc
 
-	let test = lehm (n-1) limite [] in affiche_acc test; test
+	in 
+
+	rec_lehmer rang index n []
 
 let permut_to_lehmer leh =
 
@@ -111,8 +137,10 @@ let rec affiche l =
 
 let unrank rang index = 
 	let leh = lehmer index rang in 
+	affiche leh;
 	let permut = permut_to_lehmer leh in (*la permutation est sous forme de liste *)
 	affiche permut
 
 let () =
-	unrank (int_of_string Sys.argv.(2)) (int_of_string Sys.argv.(1))
+	Hashtbl.add matrice (0,1) (1,1::[]);
+	unrank 1 1
