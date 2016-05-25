@@ -62,20 +62,20 @@ let rec construction r niv =
 		col [] 0 0
 
 
+let parcourt dec i =
+
+
+	let rec parc d reste c = 
+		match d with
+		| a::b -> if a > reste then (reste, c) else parc b (reste-a) (c+1)
+		| [] -> (0,0) (*n'arrive jamais*)
+	in
+
+	parc dec i 0
+
+
 
 let lehmer rang index = 
-
-	let parcourt dec i =
-
-
-		let rec parc d reste c = 
-			match d with
-			| a::b -> if a > reste then (reste, c) else parc b (reste-a) (c+1)
-			| [] -> (0,0) (*n'arrive jamais*)
-	 	in
-
-	 	parc dec i 0
-	in
 
 
 	let rec rec_lehmer r i nbr acc=
@@ -144,8 +144,9 @@ let debug () =
 
 let unrank rang index = 
 
-	construction 2 3; 
-	debug ()
+	let (i, num ) = parcourt (0::1::2::2::1::[]) 2 in
+	Printf.printf "i %d num %d \n" i num 
+
 
 	(* let leh = lehmer rang index in 
 	debug ();
