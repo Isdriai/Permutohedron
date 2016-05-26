@@ -153,17 +153,35 @@ let lehmer_to_permut permut =
 		cpt liste 0
 	in 
 
-	let rec ltp p acc =
+	let rec ltp p acc etage =
 		match p with
-		| a::b -> ltp b ((compte a b)::acc) 
-		| [] -> List.rev_append acc []
+		| a::b -> let rang = compte a b in ltp b (rang::acc) (etage+rang)
+		| [] -> (List.rev_append acc [], etage)
 	in 
 
-	ltp permut []
+	ltp permut [] 0
 
 let rank elem =
-	let lehm = lehmer_to_permut elem in 
-	()
+	let (lehm, etage) = lehmer_to_permut elem in 
+	
+
+	let rec rk (tete, corps) eta niv =
+
+		try  
+			let (_,decoupage) = Hashtbl.find matrice (niv , eta) in 
+
+			let rec run = 
+
+
+		 	in
+
+		 	run decoupage
+
+		with Not_found -> construction niv eta ; rk (tete, corps) eta niv
+
+	in 
+
+	rk lehm etage n 
 
 let () =
 	for i = 0 to 4 do 
