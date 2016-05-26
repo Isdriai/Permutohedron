@@ -1,4 +1,4 @@
-let n = 3
+let n = 4
 
 
 let rec affiche l = 
@@ -48,10 +48,15 @@ let rec construction r niv =
 		let rec col acc c tot=
 			let ligne = r-c in 
 
-			if ligne >= 0 then begin 
+			if ligne >= 0 then begin (* on remonte la colonne precedente .....*)
 				try
-					let (valeur,_) = Hashtbl.find matrice (ligne, niv-1)	in 
-					col (valeur::acc) (c+1) (tot+valeur)
+					let (valeur,_) = Hashtbl.find matrice (ligne, niv-1) in 
+
+					if tot = mahonian niv r then (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
+						Hashtbl.add matrice (r,niv) (tot,List.rev_append acc []) 
+					else 
+						col (valeur::acc) (c+1) (tot+valeur)
+
 				with Not_found -> construction ligne (niv-1) ; col acc c tot
 			end
 			else
@@ -144,15 +149,17 @@ let debug () =
 
 let unrank rang index = 
 
-	let (i, num ) = parcourt (0::1::2::2::1::[]) 2 in
-	Printf.printf "i %d num %d \n" i num 
+(* 	let (i, num ) = parcourt (0::1::2::2::1::[]) 2 in
+	Printf.printf "i %d num %d \n" i num  *)
 
 
-	(* let leh = lehmer rang index in 
+	let leh = lehmer rang index in 
 	debug ();
+	affiche leh
+	(*
 	let permut = permut_to_lehmer leh in (*la permutation est sous forme de liste *)
 	affiche permut *)
 
 let () =
 	Hashtbl.add matrice (0,1) (1,(1::[]));
-	unrank 1 0
+	unrank 4 0
