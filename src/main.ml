@@ -3,8 +3,8 @@ let n = 3
 
 let rec affiche l = 
 	match l with
-	| a::b -> (* Printf.printf "%d" a ; *) affiche b
-	| [] -> Printf.printf "\n"
+	| a::b -> Printf.printf "%d" a ; affiche b
+	| [] -> Printf.printf "[]\n"
 
 let fact n = 
 	let rec factorielle x acc =
@@ -106,49 +106,36 @@ let lehmer rang index =
 
 	rec_lehmer rang index n []
 
-let permut_to_lehmer leh =
+let permut_to_lehmer code_lehmer =
 
 	let possibles = (*liste les nombres allant de 1 à n*)
 		let rec construct i acc = 
-			if i < n then 
-				construct (i+1) (i::acc)
+			if i > 0 then 
+				construct (i-1) (i::acc)
 			else
-				(i::acc)
+				acc
 		in
-		construct 1 []
+		construct n []
 	in 
 
-	let rec rang_nbr nbr liste= (*dit le rang d'un nombre dans une liste, ex = le rang de 5 dans 1235 est 4 *)
-		
-		let rec rg_nbr l acc=
+	let n_elem liste compteur =
+		let rec n_e l c acc=
 			match l with
-			| a::b -> if a > nbr then rg_nbr b acc else rg_nbr b (acc+1)
-			| [] -> acc
-		in 
+			| a::b ->  if c=0 then (a,(List.rev_append acc b))  else n_e b (c-1) (a::acc) 
+			| [] -> (0,[]) (*Ne doit pas arriver*)
+		in
+		
+		n_e liste compteur []
 
-		rg_nbr liste 0
-	in
-
-	let rec search rang liste =
-		match liste with
-		| p::a::b -> if rang = rang_nbr a liste then (a, (p::b)) else search rang b
-		| a::b -> if rang = rang_nbr a liste then (a, b) else search rang b
-		| [] -> (0,[]) (*ce cas ne doit jamais arriver !*)
-	in
+	in 
 
 	let rec trans lehm reste acc = 
 		match lehm with
-		| a::b -> let (rang, res ) = search a reste in trans b res (rang::acc)
-		| [] -> acc
+		| a::b -> let (nieme, r) = n_elem reste a in trans b r (nieme::acc)
+		| [] -> List.rev_append acc []
 	in
 
-	trans leh possibles []
-
-
-let rec affiche l = 
-	match l with
-	| a::b ->  Printf.printf "%d " a ; affiche b
-	| [] -> Printf.printf "[]\n"
+	trans code_lehmer possibles []
 
 let debug () = 
 	Hashtbl.iter (fun (x,y) (tot, liste) -> Printf.printf "x %d y %d tot %d liste " x y tot ; 
@@ -157,16 +144,9 @@ let debug () =
 
 let unrank rang index = 
 
-(* 	let (i, num ) = parcourt (0::1::2::2::1::[]) 2 in
-	Printf.printf "i %d num %d \n" i num  *)
-
-
-	let leh = lehmer rang index in 
-	debug ();
-	affiche leh
-	(*
-	let permut = permut_to_lehmer leh in (*la permutation est sous forme de liste *)
-	affiche permut *)
+	let leh = List.rev_append (lehmer rang index) [] in 
+	let permut = permut_to_lehmer leh  in (*la permutation est sous forme de liste *)
+	affiche permut 
 
 let () =
 	Hashtbl.add matrice (0,1) (1,(1::[]));
