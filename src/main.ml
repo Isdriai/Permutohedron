@@ -1,4 +1,4 @@
-let n = 4
+let n = 3
 
 
 let rec affiche l = 
@@ -42,25 +42,33 @@ let matrice = Hashtbl.create 1
 
 let rec construction r niv = 
 
-		if r = 0 then  begin Hashtbl.add matrice (r,niv) (1,1::[]) end
-		else if r >= niv && niv > 0 then begin Hashtbl.add matrice (r,niv) (0,[]) end 
+		if r = 0 then 
+			Hashtbl.add matrice (r,niv) (1,1::[])
+
+		else if r >= ((niv-1)*(niv))/2 + 1 && niv > 0 then 
+
+			Hashtbl.add matrice (r,niv) (0,[]) 
+		
 		else
-		let rec col acc c tot=
-			let ligne = r-c in 
 
-			if ligne >= 0 then begin (* on remonte la colonne precedente .....*)
-				try
-					let (valeur,_) = Hashtbl.find matrice (ligne, niv-1) in 
+			let rec col acc c tot=
+				let ligne = r-c in 
 
-					if tot = mahonian niv r then (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
-						Hashtbl.add matrice (r,niv) (tot,List.rev_append acc []) 
-					else 
-						col (valeur::acc) (c+1) (tot+valeur)
+				if ligne >= 0 then (* on remonte la colonne precedente .....*)
 
-				with Not_found -> construction ligne (niv-1) ; col acc c tot
-			end
-			else
-				Hashtbl.add matrice (r,niv) (tot,List.rev_append acc [])
+					try
+						let (valeur,_) = Hashtbl.find matrice (ligne, niv-1) in 
+
+						if tot = mahonian niv r then (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
+							Hashtbl.add matrice (r,niv) (tot,List.rev_append acc []) 
+						
+						else 
+							col (valeur::acc) (c+1) (tot+valeur)
+
+					with Not_found -> construction ligne (niv-1) ; col acc c tot
+				
+				else
+					Hashtbl.add matrice (r,niv) (tot,List.rev_append acc [])
 
 		in 
 
@@ -162,4 +170,4 @@ let unrank rang index =
 
 let () =
 	Hashtbl.add matrice (0,1) (1,(1::[]));
-	unrank 4 0
+	unrank 3 0
