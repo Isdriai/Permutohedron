@@ -1,4 +1,4 @@
-let n = 3
+let n = 4
 
 
 let rec affiche l = 
@@ -86,8 +86,6 @@ let parcourt dec i =
 
 	parc dec i 0
 
-
-
 let lehmer rang index = 
 
 
@@ -137,17 +135,38 @@ let permut_to_lehmer code_lehmer =
 
 	trans code_lehmer possibles []
 
-let debug () = 
-	Hashtbl.iter (fun (x,y) (tot, liste) -> Printf.printf "x %d y %d tot %d liste " x y tot ; 
-											affiche liste ;
-											Printf.printf "\n" ) matrice 
-
 let unrank rang index = 
 
 	let leh = List.rev_append (lehmer rang index) [] in 
-	let permut = permut_to_lehmer leh  in (*la permutation est sous forme de liste *)
-	affiche permut 
+	permut_to_lehmer leh (*la permutation est sous forme de liste *)
+
+
+let lehmer_to_permut permut = 
+
+	let compte index liste =
+		let rec cpt l acc =
+			match l with
+			| a :: b -> if a < index then cpt b (acc+1) else cpt b acc
+			| [] -> acc
+		in 
+
+		cpt liste 0
+	in 
+
+	let rec ltp p acc =
+		match p with
+		| a::b -> ltp b ((compte a b)::acc) 
+		| [] -> List.rev_append acc []
+	in 
+
+	ltp permut []
+
+let rank elem =
+	let lehm = lehmer_to_permut elem in 
+	()
 
 let () =
-	Hashtbl.add matrice (0,1) (1,(1::[]));
-	unrank 3 0
+	for i = 0 to 4 do 
+		let elem = unrank 2 i in 
+		affiche elem
+	done
