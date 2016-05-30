@@ -41,14 +41,14 @@ let rec mahonian r c =
 let matrice = Hashtbl.create 1
 
 let rec construction r niv = 
+(* 		Printf.printf "r %d niv %d \n" r niv;
+ *)		if r = 0 then 
 
-		if r = 0 then 
 			Hashtbl.add matrice (r,niv) (1,1::[])
 
 		else if r >= ((niv-1)*(niv))/2 + 1 && niv > 0 then 
-
 			Hashtbl.add matrice (r,niv) (0,[]) 
-		
+
 		else
 
 			let rec col acc c tot=
@@ -59,15 +59,14 @@ let rec construction r niv =
 					try
 						let (valeur,_) = Hashtbl.find matrice (ligne, niv-1) in 
 
-						if tot = mahonian niv r then (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
+						if tot = mahonian niv r then  (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
 							Hashtbl.add matrice (r,niv) (tot,List.rev_append acc []) 
-						
 						else 
 							col (valeur::acc) (c+1) (tot+valeur)
 
 					with Not_found -> construction ligne (niv-1) ; col acc c tot
 				
-				else
+				else 
 					Hashtbl.add matrice (r,niv) (tot,List.rev_append acc [])
 
 		in 
@@ -162,29 +161,52 @@ let lehmer_to_permut permut =
 	ltp permut [] 0
 
 let rank elem =
-	let (lehm, etage) = lehmer_to_permut elem in 
+	let (lehm, etage) = lehmer_to_permut elem in (*ok*)
 	
+	let rec rk leh eta niv acc =
+		Printf.printf " eta %d niv %d acc %d \n"  eta niv acc;
 
-	let rec rk (tete, corps) eta niv =
+		match leh with
+		| [] -> acc
+		| tete::corps -> 
+			try  
+				let (t,decoupage) = Hashtbl.find matrice (eta , niv) in 
 
-		try  
-			let (_,decoupage) = Hashtbl.find matrice (niv , eta) in 
+				Printf.printf" t %d decoupage : " t ; affiche decoupage ; Printf.printf "\n";
 
-			let rec run = 
+				let rec i_elem liste i = (*renvoie le total de la liste jusqu'au ieme element ( non inclu ) *)
+					Printf.printf "i %d \n " i ;
+					let rec i_e l c acc=
+						Printf.printf "c %d \n " c ;
+						match l with
+						| a::b ->  if c=0 then acc else i_e b (c-1) (a+acc) 
+						| [] -> 0 (*Ne doit pas arriver*)
+					in 
+					i_e liste i 0
+				in
 
+				let new_i = i_elem decoupage tete in 
+				rk corps (eta-tete) (niv-1) (new_i+acc)
 
-		 	in
-
-		 	run decoupage
-
-		with Not_found -> construction niv eta ; rk (tete, corps) eta niv
+			with Not_found -> construction niv eta ; rk (tete::corps) eta niv acc
 
 	in 
+	
+	rk lehm etage n 0 
 
-	rk lehm etage n 
+let next elem = 
+	let lehm = lehmer_to_permut elem in 
+	()
+
+let previous elem = 
+	let lehm = lehmer_to_permut elem in 
+	()
 
 let () =
-	for i = 0 to 4 do 
-		let elem = unrank 2 i in 
+	(for i = 0 to ((mahonian n 5)-1)  do 
+		let elem = unrank 5 i in 
 		affiche elem
-	done
+	done);
+
+	
+	Printf.printf " rang : %d \n " (rank (4::3::1::2::[])) 
