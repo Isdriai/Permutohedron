@@ -40,14 +40,18 @@ let rec mahonian r c =
 
 let matrice = Hashtbl.create 1
 
+let ajoute (r,niv) (tot,liste) = 
+	Printf.printf "construction de (%d,%d) avec tot %d \n"r niv tot;
+	Hashtbl.add matrice (r,niv) (tot,liste)
+
 let rec construction r niv = 
 (* 		Printf.printf "r %d niv %d \n" r niv;
  *)		if r = 0 then 
 
-			Hashtbl.add matrice (r,niv) (1,1::[])
+			ajoute (r,niv) (1,1::[])
 
 		else if r >= ((niv-1)*(niv))/2 + 1 && niv > 0 then 
-			Hashtbl.add matrice (r,niv) (0,[]) 
+			ajoute (r,niv) (0,[]) 
 
 		else
 
@@ -58,16 +62,16 @@ let rec construction r niv =
 
 					try
 						let (valeur,_) = Hashtbl.find matrice (ligne, niv-1) in 
-
+						Printf.printf "val : %d ligne %d niv %d\n" valeur ligne (niv-1);
 						if tot = mahonian niv r then  (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
-							Hashtbl.add matrice (r,niv) (tot,List.rev_append acc []) 
+							ajoute (r,niv) (tot,List.rev_append acc []) 
 						else 
 							col (valeur::acc) (c+1) (tot+valeur)
 
 					with Not_found -> construction ligne (niv-1) ; col acc c tot
 				
 				else 
-					Hashtbl.add matrice (r,niv) (tot,List.rev_append acc [])
+					ajoute (r,niv) (tot,List.rev_append acc [])
 
 		in 
 
@@ -203,10 +207,29 @@ let previous elem =
 	()
 
 let () =
-	(for i = 0 to ((mahonian n 5)-1)  do 
-		let elem = unrank 5 i in 
+	(* let etage = 2 in 
+	let maho = mahonian (n-1) etage in 
+	Printf.printf "maho %d\n" maho;
+	(for i = 0 to maho do 
+		let elem = unrank etage i in 
 		affiche elem
 	done);
 
-	
-	Printf.printf " rang : %d \n " (rank (4::3::1::2::[])) 
+	let mah = mahonian (n-1) (etage+1) in
+	Printf.printf "mah %d\n" mah;
+	(for i = 0 to mah do 
+		let elem = unrank (etage+1) i in 
+		affiche elem
+	done); *)
+(* 
+	construction 3 4;
+
+	Hashtbl.iter (fun (rang,niveau) (tot, liste) -> 
+		Printf.printf "case (%d,%d) avec en tete %d et corps " rang niveau tot;
+		affiche liste;
+		Printf.printf "\n"
+	) matrice *)
+(* 	Printf.printf " rang : %d \n " (rank (3::1::2::4::[])) 
+ *)
+
+construction 1 0
