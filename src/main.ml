@@ -1,9 +1,8 @@
-let n = 4
-
+let n = 10
 
 let rec affiche l = 
 	match l with
-	| a::b -> Printf.printf "%d" a ; affiche b
+	| a::b -> Printf.printf "%d" a ; flush stdout ; affiche b
 	| [] -> Printf.printf "[]\n"
 
 let fact n = 
@@ -41,8 +40,8 @@ let rec mahonian r c =
 let matrice = Hashtbl.create 1
 
 let ajoute (r,niv) (tot,liste) = 
-	Printf.printf "construction de (%d,%d) avec tot %d \n"r niv tot;
-	Hashtbl.add matrice (r,niv) (tot,liste)
+(* 	Printf.printf "construction de (%d,%d) avec tot %d \n"r niv tot;
+ *)	Hashtbl.add matrice (r,niv) (tot,liste)
 
 let rec construction r niv = 
 (* 		Printf.printf "r %d niv %d \n" r niv;
@@ -62,8 +61,11 @@ let rec construction r niv =
 
 					try
 						let (valeur,_) = Hashtbl.find matrice (ligne, niv-1) in 
-						Printf.printf "val : %d ligne %d niv %d\n" valeur ligne (niv-1);
-						if tot = mahonian niv r then  (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
+						let maho = mahonian (niv-1) r in
+
+(* 						Printf.printf"maho %d" maho;
+ *)
+						if tot = maho then  (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
 							ajoute (r,niv) (tot,List.rev_append acc []) 
 						else 
 							col (valeur::acc) (c+1) (tot+valeur)
@@ -142,7 +144,6 @@ let unrank rang index =
 
 	let leh = List.rev_append (lehmer rang index) [] in 
 	permut_to_lehmer leh (*la permutation est sous forme de liste *)
-
 
 let lehmer_to_permut permut = 
 
@@ -224,12 +225,32 @@ let () =
 (* 
 	construction 3 4;
 
-	Hashtbl.iter (fun (rang,niveau) (tot, liste) -> 
+	
+(* 	Printf.printf " rang : %d \n " (rank (3::1::2::4::[])) 
+ *)
+*)
+
+(* (for i = 0 to 7 do
+
+construction i 4 
+
+done);
+
+Printf.printf"\n\n";
+
+Hashtbl.iter (fun (rang,niveau) (tot, liste) -> 
 		Printf.printf "case (%d,%d) avec en tete %d et corps " rang niveau tot;
 		affiche liste;
 		Printf.printf "\n"
-	) matrice *)
-(* 	Printf.printf " rang : %d \n " (rank (3::1::2::4::[])) 
- *)
+	) matrice ; *)
 
-construction 1 0
+
+(* let etage = 20 in 
+	let maho = mahonian (n-1) etage in 
+	Printf.printf "maho %d\n" maho;
+	(for i = 0 to maho-1 do 
+		let elem = unrank etage i in 
+		affiche elem
+	done); *)
+
+affiche (unrank 20 100000)
