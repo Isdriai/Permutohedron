@@ -1,4 +1,4 @@
-let n = 10
+let n = 11
 
 let rec affiche l = 
 	match l with
@@ -40,12 +40,10 @@ let rec mahonian r c =
 let matrice = Hashtbl.create 1
 
 let ajoute (r,niv) (tot,liste) = 
-(* 	Printf.printf "construction de (%d,%d) avec tot %d \n"r niv tot;
- *)	Hashtbl.add matrice (r,niv) (tot,liste)
+	Hashtbl.add matrice (r,niv) (tot,liste)
 
 let rec construction r niv = 
-(* 		Printf.printf "r %d niv %d \n" r niv;
- *)		if r = 0 then 
+		if r = 0 then 
 
 			ajoute (r,niv) (1,1::[])
 
@@ -63,8 +61,7 @@ let rec construction r niv =
 						let (valeur,_) = Hashtbl.find matrice (ligne, niv-1) in 
 						let maho = mahonian (niv-1) r in
 
-(* 						Printf.printf"maho %d" maho;
- *)
+
 						if tot = maho then  (* ... mais on s'arrete quand on a atteind le nombre de mahonian c'est à dire min(n ,k+1)*)
 							ajoute (r,niv) (tot,List.rev_append acc []) 
 						else 
@@ -169,7 +166,6 @@ let rank elem =
 	let (lehm, etage) = lehmer_to_permut elem in (*ok*)
 	
 	let rec rk leh eta niv acc =
-		Printf.printf " eta %d niv %d acc %d \n"  eta niv acc;
 
 		match leh with
 		| [] -> acc
@@ -177,12 +173,8 @@ let rank elem =
 			try  
 				let (t,decoupage) = Hashtbl.find matrice (eta , niv) in 
 
-				Printf.printf" t %d decoupage : " t ; affiche decoupage ; Printf.printf "\n";
-
 				let rec i_elem liste i = (*renvoie le total de la liste jusqu'au ieme element ( non inclu ) *)
-					Printf.printf "i %d \n " i ;
 					let rec i_e l c acc=
-						Printf.printf "c %d \n " c ;
 						match l with
 						| a::b ->  if c=0 then acc else i_e b (c-1) (a+acc) 
 						| [] -> 0 (*Ne doit pas arriver*)
@@ -200,57 +192,65 @@ let rank elem =
 	rk lehm etage n 0 
 
 let next elem = 
-	let lehm = lehmer_to_permut elem in 
-	()
+
+	let lehm = List.rev_append (fst (lehmer_to_permut elem)) [] in 
+	
+	let rec rempli arret cmt reste acc= 
+		if arret = 0 then acc else
+
+		if reste > cmt then
+			rempli (arret-1) (cmt+1) (reste-cmt) (cmt::acc)
+		else
+			rempli (arret-1) (cmt+1) 0 (reste::acc)
+
+	in 
+
+	let rec distrib cmt liste ramasse = 
+
+		match liste with
+		| tete::corps ->if tete >= (cmt-1) then 
+							distrib (cmt+1) corps (ramasse+tete)
+						else 
+							(((tete+1)::corps),ramasse)
+
+		| _ -> raise Exit (*il n'existe pas de suivant*)
+
+	in
+
+	let rec run el cmt =
+		match el with
+		| act::reste-> if act = 0 then 
+							run reste (cmt+1) 
+						else 	
+							(cmt,(act-1)::reste)
+		| [] -> (0,[]) (*n'arrive jamais*)
+	in 
+
+	let (cmt,el) =  (run lehm 0) in 
+	let (dis, ramasse) = distrib cmt el 0 in 
+	List.rev_append dis (rempli (cmt+1) 0 ramasse []) 
+
 
 let previous elem = 
 	let lehm = lehmer_to_permut elem in 
 	()
 
 let () =
-	(* let etage = 2 in 
-	let maho = mahonian (n-1) etage in 
-	Printf.printf "maho %d\n" maho;
-	(for i = 0 to maho do 
-		let elem = unrank etage i in 
-		affiche elem
-	done);
 
-	let mah = mahonian (n-1) (etage+1) in
-	Printf.printf "mah %d\n" mah;
-	(for i = 0 to mah do 
-		let elem = unrank (etage+1) i in 
-		affiche elem
-	done); *)
-(* 
-	construction 3 4;
+(* affiche (unrank 20 100000);
+Printf.printf "rang de 46210931578[] %d" (rank (4::6::2::10::9::3::1::5::7::8::[])) *)
 
-	
-(* 	Printf.printf " rang : %d \n " (rank (3::1::2::4::[])) 
- *)
-*)
-
-(* (for i = 0 to 7 do
-
-construction i 4 
-
-done);
-
-Printf.printf"\n\n";
-
-Hashtbl.iter (fun (rang,niveau) (tot, liste) -> 
-		Printf.printf "case (%d,%d) avec en tete %d et corps " rang niveau tot;
-		affiche liste;
-		Printf.printf "\n"
-	) matrice ; *)
-
-
-(* let etage = 20 in 
-	let maho = mahonian (n-1) etage in 
-	Printf.printf "maho %d\n" maho;
-	(for i = 0 to maho-1 do 
-		let elem = unrank etage i in 
-		affiche elem
-	done); *)
-
-affiche (unrank 20 100000)
+let tmp = ref 0 in 
+let j = ref 0 in 
+while !tmp < fact n do
+	let etage = !j in 
+		let maho = mahonian (n-1) etage in 
+		Printf.printf "maho %d\n" maho;
+		(for i = 0 to maho-1 do 
+			let elem = unrank etage i in 
+			affiche elem
+		done);
+		Printf.printf "\n\n";
+		incr j;
+		tmp := !tmp + maho 
+done
