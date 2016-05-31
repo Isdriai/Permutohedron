@@ -202,7 +202,6 @@ let next elem =
 			rempli (arret-1) (cmt+1) (reste-cmt) (cmt::acc)
 		else
 			rempli (arret-1) (cmt+1) 0 (reste::acc)
-
 	in 
 
 	let rec distrib cmt liste ramasse = 
@@ -240,7 +239,7 @@ let () =
 (* affiche (unrank 20 100000);
 Printf.printf "rang de 46210931578[] %d" (rank (4::6::2::10::9::3::1::5::7::8::[])) *)
 
-let tmp = ref 0 in 
+(* let tmp = ref 0 in 
 let j = ref 0 in 
 while !tmp < fact n do
 	let etage = !j in 
@@ -253,4 +252,6 @@ while !tmp < fact n do
 		Printf.printf "\n\n";
 		incr j;
 		tmp := !tmp + maho 
-done
+done *)
+
+affiche (next (1::4::2::3::[]))
