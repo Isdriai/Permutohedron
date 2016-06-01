@@ -3,7 +3,7 @@ let n = 4
 let rec affiche l = 
 	match l with
 	| a::b -> Printf.printf "%d" a ; flush stdout ; affiche b
-	| [] -> Printf.printf "[]\n"
+	| [] -> Printf.printf "[]"
 
 let fact n = 
 	let rec factorielle x acc =
@@ -184,11 +184,14 @@ let rank elem =
 				let new_i = i_elem decoupage tete in 
 				rk corps (eta-tete) (niv-1) (new_i+acc)
 
-			with Not_found -> construction niv eta ; rk (tete::corps) eta niv acc
+			with Not_found -> Printf.printf " appel a construction \n"; construction niv eta ; rk (tete::corps) eta niv acc
 
 	in 
-	
-	rk lehm etage n 0 
+
+	if etage = 0 then 
+		0 
+	else 
+		rk lehm etage n 0 
 
 let next elem = 
 
@@ -259,7 +262,7 @@ let () =
 (* affiche (unrank 20 100000);
 Printf.printf "rang de 46210931578[] %d" (rank (4::6::2::10::9::3::1::5::7::8::[])) *)
 
-(* let tmp = ref 0 in 
+let tmp = ref 0 in 
 let j = ref 0 in 
 while !tmp < fact n do
 	let etage = !j in 
@@ -267,19 +270,11 @@ while !tmp < fact n do
 		Printf.printf "maho %d\n" maho;
 		(for i = 0 to maho-1 do 
 			let elem = unrank etage i in 
-			affiche elem
+			affiche elem;
+			Printf.printf "   %d  \n"  (rank elem);
+			Printf.printf "\n"
 		done);
 		Printf.printf "\n\n";
 		incr j;
 		tmp := !tmp + maho 
-done *)
-
-let etage = 4 in 
-let maho = mahonian (n-1) etage in 
-
-(for i = 0 to maho - 1 do 
-	let (elem,_) = lehmer_to_permut (unrank etage i) in 
-	affiche elem
-done);
-
-affiche (next (1::4::2::3::[]))
+done 
