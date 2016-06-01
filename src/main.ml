@@ -1,4 +1,4 @@
-let n = 11
+let n = 4
 
 let rec affiche l = 
 	match l with
@@ -75,7 +75,6 @@ let rec construction r niv =
 		in 
 
 		col [] 0 0
-
 
 let parcourt dec i =
 
@@ -229,10 +228,31 @@ let next elem =
 	let (dis, ramasse) = distrib cmt el 0 in 
 	List.rev_append dis (rempli (cmt+1) 0 ramasse []) 
 
-
 let previous elem = 
-	let lehm = lehmer_to_permut elem in 
-	()
+	let lehm = List.rev_append (fst (lehmer_to_permut elem)) [] in 
+
+	let rec distrib pivot reste acc= 
+		match pivot with
+		| 0 -> 0::acc
+		| a -> if reste > pivot then 
+					distrib (pivot-1) (reste-pivot) (pivot::acc)
+				else
+					distrib (pivot-1) 0 (reste::acc)
+		in
+	
+	let rec run liste rammassage cmt =
+		match liste with
+		| tete::suiv::corps -> let apres = suiv > 0 in 
+								if tete < cmt && apres then 
+									(cmt, (rammassage+1), (suiv-1)::corps)
+								else
+									run (suiv::corps) (rammassage+tete) (cmt+1)
+		| _ -> (0,0,[])
+	in 
+	
+	let (pivot, acc, partie) = run lehm 0 0 in 
+	let leh_final = List.rev_append partie (List.rev_append (distrib pivot acc []) []) in
+	permut_to_lehmer leh_final
 
 let () =
 
@@ -253,5 +273,13 @@ while !tmp < fact n do
 		incr j;
 		tmp := !tmp + maho 
 done *)
+
+let etage = 4 in 
+let maho = mahonian (n-1) etage in 
+
+(for i = 0 to maho - 1 do 
+	let (elem,_) = lehmer_to_permut (unrank etage i) in 
+	affiche elem
+done);
 
 affiche (next (1::4::2::3::[]))
