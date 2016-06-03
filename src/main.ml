@@ -197,40 +197,38 @@ let rank elem =
 let next elem = 
 
 	let lehm = List.rev_append (fst (lehmer_to_permut elem)) [] in 
-	
-	let rec rempli arret cmt reste acc= 
-		if arret = 0 then acc else
 
-		if reste > cmt then
-			rempli (arret-1) (cmt+1) (reste-cmt) (cmt::acc)
-		else
-			rempli (arret-1) (cmt+1) 0 (reste::acc)
-	in 
+	let distrib pivot rammassage =
+		let rec dis n reste acc =
+		  	if n = pivot then 
+		  		(reste::acc)
+		  	else
+		  		if reste >= n then 
+		  			dis (n+1) (reste-n) (n::acc)
+		  		else
+		  			dis (n+1) 0 (reste::acc)
+		in 
 
-	let rec distrib cmt liste ramasse = 
-
-		match liste with
-		| tete::corps ->if tete >= (cmt-1) then 
-							distrib (cmt+1) corps (ramasse+tete)
-						else 
-							(((tete+1)::corps),ramasse)
-
-		| _ -> raise Exit (*il n'existe pas de suivant*)
-
+		dis 0 rammassage ([])
 	in
 
-	let rec run el cmt =
-		match el with
-		| act::reste-> if act = 0 then 
-							run reste (cmt+1) 
-						else 	
-							(cmt,(act-1)::reste)
-		| [] -> (0,[]) (*n'arrive jamais*)
-	in 
+	let rec run liste cpt rammassage =
+		match liste with
+		| tete::suiv::corps -> if tete > 0 then
+									if suiv <= cpt then
+										(cpt,rammassage+tete-1,(suiv+1)::corps)
+									else
+										run (suiv::corps) (cpt+1) (rammassage+tete)
+								else
+									run (suiv::corps) (cpt+1) rammassage
+		| _ -> raise Exit (*ne doit pas arriver*)
+	in
 
-	let (cmt,el) =  (run lehm 0) in 
-	let (dis, ramasse) = distrib cmt el 0 in 
-	permut_to_lehmer (List.rev_append dis (rempli (cmt+1) 0 ramasse []))
+	let (pivot, rammassage, corps) = run lehm 0 0 in 
+	let tete = distrib pivot rammassage in 
+	permut_to_lehmer (List.rev_append (List.rev_append tete corps) [])
+
+
 
 let previous elem = 
 	let lehm = List.rev_append (fst (lehmer_to_permut elem)) [] in 
@@ -287,7 +285,7 @@ let elem = unrank etage 0 in
 
 let rec test_next n_elem elem =
 
-	if n_elem = maho then () else begin 
+	if n_elem = maho-1 then () else begin 
 		let nwelem = next elem in 
 		affiche nwelem;
 		Printf.printf "         ";
@@ -303,7 +301,7 @@ in
 
 (* previous (7::1::2::4::5::6::3::[])
 
-(7::3::2::1::4::5::6::[]) *)
+(7::1::2::6::3::4::5::[]) *)
 
 test_next 0 elem 
 
