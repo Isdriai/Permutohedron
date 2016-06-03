@@ -1,4 +1,6 @@
-let n = 4
+let n = 7
+
+let tot = ref 0
 
 let rec affiche l = 
 	match l with
@@ -13,8 +15,6 @@ let fact n =
 	in
 	factorielle n 1
 
-let count = fact n
-
 (*
 	Mahonian fonction
 
@@ -23,7 +23,6 @@ let count = fact n
 	M(r, c) = Σ(k=0 -> r) M(r - 1, c-k )
 
 *)
-
 let rec mahonian r c =
 	match r, c with
 	| 0, 0 -> 1
@@ -34,13 +33,15 @@ let rec mahonian r c =
 		res := !res + mahonian (lig - 1 ) ( col - i )
 	done);
 
-	!res
-	
+	!res  
+
+let count = fact n	
 
 let matrice = Hashtbl.create 1
 
 let ajoute (r,niv) (tot,liste) = 
 	Hashtbl.add matrice (r,niv) (tot,liste)
+
 
 let rec construction r niv = 
 		if r = 0 then 
@@ -229,7 +230,7 @@ let next elem =
 
 	let (cmt,el) =  (run lehm 0) in 
 	let (dis, ramasse) = distrib cmt el 0 in 
-	List.rev_append dis (rempli (cmt+1) 0 ramasse []) 
+	permut_to_lehmer (List.rev_append dis (rempli (cmt+1) 0 ramasse []))
 
 let previous elem = 
 	let lehm = List.rev_append (fst (lehmer_to_permut elem)) [] in 
@@ -247,7 +248,7 @@ let previous elem =
 		match liste with
 		| tete::suiv::corps -> let apres = suiv > 0 in 
 								if tete < cmt && apres then 
-									(cmt, (rammassage+1), (suiv-1)::corps)
+									(cmt, (rammassage+1+tete), (suiv-1)::corps)
 								else
 									run (suiv::corps) (rammassage+tete) (cmt+1)
 		| _ -> (0,0,[])
@@ -259,22 +260,53 @@ let previous elem =
 
 let () =
 
-(* affiche (unrank 20 100000);
-Printf.printf "rang de 46210931578[] %d" (rank (4::6::2::10::9::3::1::5::7::8::[])) *)
-
-let tmp = ref 0 in 
+(* let tmp = ref 0 in 
 let j = ref 0 in 
-while !tmp < fact n do
+(while !tmp < fact n do
 	let etage = !j in 
 		let maho = mahonian (n-1) etage in 
 		Printf.printf "maho %d\n" maho;
 		(for i = 0 to maho-1 do 
 			let elem = unrank etage i in 
+			incr tot;
 			affiche elem;
 			Printf.printf "   %d  \n"  (rank elem);
-			Printf.printf "\n"
 		done);
 		Printf.printf "\n\n";
 		incr j;
 		tmp := !tmp + maho 
-done 
+done );
+
+Printf.printf "tot : %d \n" !tot; *)
+
+
+let etage = 9 in 
+let maho = mahonian (n-1) etage in
+let elem = unrank etage 0 in 
+
+
+let rec test_next n_elem elem =
+
+	if n_elem = maho then () else begin 
+		let nwelem = next elem in 
+		affiche nwelem;
+		Printf.printf "         ";
+		affiche (unrank etage (n_elem+1));
+		Printf.printf "\n";
+		test_next (n_elem+1) nwelem
+	end
+
+(* 	Printf.printf "     %d\n" (rank nwelem);
+ *)
+	
+in
+
+(* previous (7::1::2::4::5::6::3::[])
+
+(7::3::2::1::4::5::6::[]) *)
+
+test_next 0 elem 
+
+(* ds buid/pkg/brial
+
+rajouter ligne juste avant ./configure *)
