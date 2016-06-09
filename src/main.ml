@@ -1,4 +1,4 @@
-let n = 7
+let n = 4
 
 let tot = ref 0
 
@@ -228,8 +228,6 @@ let next elem =
 	let tete = distrib pivot rammassage in 
 	permut_to_lehmer (List.rev_append (List.rev_append tete corps) [])
 
-
-
 let previous elem = 
 	let lehm = List.rev_append (fst (lehmer_to_permut elem)) [] in 
 
@@ -255,6 +253,26 @@ let previous elem =
 	let (pivot, acc, partie) = run lehm 0 0 in 
 	let leh_final = List.rev_append partie (List.rev_append (distrib pivot acc []) []) in
 	permut_to_lehmer leh_final
+
+let haut_bas elem compare =
+	let rec h_b l prec acc =
+		match l with
+		| [] -> acc
+		| a::[] -> acc
+		| tete::suivant::reste -> if compare suivant tete then 
+									let ajout = List.rev_append (List.rev_append reste (tete::suivant::prec)) [] in  
+									h_b (suivant::reste) (tete::prec) (ajout::acc)
+								else
+									h_b (suivant::reste) (tete::prec) acc
+	in
+	h_b elem [] []
+
+let succ elem = 
+	haut_bas elem (>)
+
+let prec elem =
+	haut_bas elem (<)
+	
 
 let () =
 
@@ -308,3 +326,8 @@ test_next 0 elem
 (* ds buid/pkg/brial
 
 rajouter ligne juste avant ./configure *)
+(* 
+for i=0 to 4 do 
+	let elem = unrank 3 i in Printf.printf "    " ; affiche elem;
+	Printf.printf "\n"
+done *)
