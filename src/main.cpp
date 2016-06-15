@@ -2,16 +2,31 @@
 #include <stdlib.h>
 #include <vector>
 #include <string.h>
-// #include <unordered_map>
+#include <unordered_map>
 
 using namespace std;
 
-int n = 5;
+int n ;
 
 struct Noeud{
 	int chemin;
 	vector<int> elem;
 };
+
+struct Case{
+	int lig;
+	int co;
+};
+
+struct hash_Case{
+  size_t operator()(const Case &x) const{
+    return std::hash<int>()(x.lig) ^ std::hash<int>()(x.co);
+  }
+};
+
+bool operator==(Case const& a, Case const& b){
+	return a.lig == b.lig && a.co == b.co;
+}
 
 bool sup (int a, int b){
 	return a > b;
@@ -30,30 +45,31 @@ bool inf (int a, int b){
 
 */
 
-// unordered_map<Case, int> sav_maho;
+ unordered_map<Case, int, hash_Case> sav_maho;
 
 // regarder comment memoiser ce truc !!!!
 int mahonian (int ligne, int col){
 	
 	// cout << "maho " << ligne << "  " << col << endl ;
 
-	// Case tmp;
-	// tmp.lig=ligne;
-	// tmp.co=col;
+	 Case tmp;
+	 tmp.lig=ligne;
+	 tmp.co=col;
 
-	// try {
-	// 	cout << " bonjour" << endl ;
-	// 	return sav_maho[tmp];
-	// }
-	// catch(exception e){
+	unordered_map<Case,int,hash_Case>::const_iterator got = sav_maho.find (tmp);
+
+	 if(got != sav_maho.end()) {
+	 	return sav_maho[tmp];
+	 }
+	 else{
 
 		if(ligne == 0){
 			if(col == 0){
 
-				// sav_maho[tmp]=1;
+				 sav_maho[tmp]=1;
 				return 1;
 			}
-		// sav_maho[tmp]=0;
+		 sav_maho[tmp]=0;
 		return 0;
 		}
 
@@ -66,10 +82,10 @@ int mahonian (int ligne, int col){
 				res+= mahonian(ligne-1, col-i);
 			}
 
-			// sav_maho[tmp]=res;
+			 sav_maho[tmp]=res;
 			return res;
 		}
-	//}
+	}
 }
 
 vector<vector<int>> haut_bas (vector<int> elem, bool (*compare)(int,int)){
@@ -402,12 +418,14 @@ int chaines_max(){
 }
 
 int main(int argc, char const *argv[]){
-	 std::vector<int> test ({4,1,2,3});
 
 
-	 cout << chaines_max_bis() << endl ;
+	for (int i = 1; i < 8 ; ++i)
+	{
+		n=i;
+		cout << chaines_max_bis() << endl ;
 
-
+	}
 
 	return 0;
 }
