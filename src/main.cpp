@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <vector>
 #include <string.h>
+// #include <unordered_map>
 
 using namespace std;
 
-int n = 4;
+int n = 5;
 
-struct Noeud
-{
+struct Noeud{
 	int chemin;
 	vector<int> elem;
 };
@@ -19,6 +19,57 @@ bool sup (int a, int b){
 
 bool inf (int a, int b){
 	return a < b;
+}
+
+/*
+	Mahonian fonction
+
+	M(0, 0) = 1
+	M(0, c) = 0 for c <> 0
+	M(r, c) = Σ(k=0 -> r) M(r - 1, c-k )
+
+*/
+
+// unordered_map<Case, int> sav_maho;
+
+// regarder comment memoiser ce truc !!!!
+int mahonian (int ligne, int col){
+	
+	// cout << "maho " << ligne << "  " << col << endl ;
+
+	// Case tmp;
+	// tmp.lig=ligne;
+	// tmp.co=col;
+
+	// try {
+	// 	cout << " bonjour" << endl ;
+	// 	return sav_maho[tmp];
+	// }
+	// catch(exception e){
+
+		if(ligne == 0){
+			if(col == 0){
+
+				// sav_maho[tmp]=1;
+				return 1;
+			}
+		// sav_maho[tmp]=0;
+		return 0;
+		}
+
+		else {
+
+
+			int res = 0;
+			for (int i = 0; i < ligne; ++i)
+			{
+				res+= mahonian(ligne-1, col-i);
+			}
+
+			// sav_maho[tmp]=res;
+			return res;
+		}
+	//}
 }
 
 vector<vector<int>> haut_bas (vector<int> elem, bool (*compare)(int,int)){
@@ -138,6 +189,41 @@ vector<int> next(vector<int> elem){
 	return permut_to_lehmer(lehm);
 }
 
+int cpt(vector<int> lehm){
+	int tmp = 0 ;
+	for (int i : lehm )
+	{
+		tmp+=i;
+	}
+
+	return tmp;
+}
+
+int ranka(vector<int> elem){
+	vector<int> lehm = lehmer_to_permut(elem);
+
+	int p = cpt(lehm);
+	int niv = n;
+	int min = 0;
+
+	for(int i : lehm){
+
+		for (int j = 0 ; j < i ; j++ )
+		{
+			min+= mahonian(niv-1, p-j);
+		}
+
+		p-=i;
+		niv--;
+
+		if (!p){
+			return min;
+		}
+	}
+
+	return 0 ;
+}
+
 int somme (int e){
 
 	if(!e)
@@ -212,7 +298,9 @@ vector<Noeud> list_etage(int etage){
 
 	niveau.push_back(first);
 
-	while(!egale(first.elem, suiv.elem)){
+	int maho = mahonian(n,etage-1);
+
+	for(int i = 0 ; i < maho - 1 ; i++){
 
 
 		niveau.push_back(suiv);
@@ -228,7 +316,7 @@ vector<Noeud> list_etage(int etage){
 	return niveau;
 }
 
-vector<Noeud> etage(vector<Noeud> v, int eta){
+vector<Noeud> etage(vector<Noeud> etage_fils, int eta){
 
 
 	// génération de l'étage precedent
@@ -239,19 +327,22 @@ vector<Noeud> etage(vector<Noeud> v, int eta){
 	// on pourrait peut etre aller plus vite avec une table de hash ? 
 	// ca limiterait le tps passé a retrouver les noeuds correspondant aux peres du noeud actuel
 
-	for (Noeud n : v)
+	for (Noeud const & noeud : etage_fils)
 	{
-		vector<vector<int>> parents = prec(n.elem);
+		vector<vector<int>> parents = prec(noeud.elem);
 
-		for (vector<int> pre : parents)
+		for (vector<int> const & pre : parents)
 		{
-			for (Noeud precedent : niveau)
-			{
-				if(precedent.elem == pre){
-					precedent.chemin+= n.chemin;
-					break;
-				}
-			}
+
+
+			niveau[ranka(pre)].chemin+=noeud.chemin;
+			// for (Noeud & precedent : niveau)
+			// {
+			// 	if(egale(precedent.elem,pre)){
+			// 		precedent.chemin+= noeud.chemin;
+			// 		break;
+			// 	}
+			// }
 		}
 	}
 
@@ -270,12 +361,13 @@ int chaines_max_bis(){
 
 	premier_etage.push_back(id);
 
-	while(etage_actuel != 0){
+	while(etage_actuel != 1){
 
 		premier_etage = etage(premier_etage, etage_actuel);
 
 		etage_actuel--;
 	}
+
 
 	return premier_etage[0].chemin;
 }
@@ -310,23 +402,12 @@ int chaines_max(){
 }
 
 int main(int argc, char const *argv[]){
-	 std::vector<int> test ({3,2,1,4});
-
-	 // vector<vector<int>> infe = succ(test);
-
-	 // vector<vector<int>> supe = prec(test);
-
-	 // cout << chaines_max_bis() << endl ;
-
-	  affiche_etage(list_etage(4));
+	 std::vector<int> test ({4,1,2,3});
 
 
-	  // for (int i : next(test))
-	  // {
-	  // 	cout << i ;
-	  // }
+	 cout << chaines_max_bis() << endl ;
 
-	  // cout << endl ;
+
 
 	return 0;
 }
