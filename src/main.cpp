@@ -27,7 +27,7 @@ struct hash_Case{
 struct hash_vecteur{
 	size_t operator()(const vector<int> &x) const{
  		
-  		size_t tmp;
+  		size_t tmp = 0;
 
  		for (int i : x)
  		{
@@ -519,7 +519,7 @@ int main(int argc, char const *argv[]){
 	for (int i = 1; i < 8 ; ++i)
 	{
 		n=i;
-		cout << chaines_max_bis() << endl ;
+		cout << chaines_max_ter() << endl ;
 
 	}
 
