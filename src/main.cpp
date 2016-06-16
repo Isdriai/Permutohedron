@@ -24,6 +24,20 @@ struct hash_Case{
   }
 };
 
+struct hash_vecteur{
+	size_t operator()(const vector<int> &x) const{
+ 		
+  		size_t tmp;
+
+ 		for (int i : x)
+ 		{
+ 			tmp = tmp ^ std::hash<int>()(i);
+ 		}
+ 		return tmp;
+	}
+};
+
+
 bool operator==(Case const& a, Case const& b){
 	return a.lig == b.lig && a.co == b.co;
 }
@@ -47,14 +61,11 @@ bool inf (int a, int b){
 
  unordered_map<Case, int, hash_Case> sav_maho;
 
-// regarder comment memoiser ce truc !!!!
 int mahonian (int ligne, int col){
 	
-	// cout << "maho " << ligne << "  " << col << endl ;
-
-	 Case tmp;
-	 tmp.lig=ligne;
-	 tmp.co=col;
+	Case tmp;
+	tmp.lig=ligne;
+	tmp.co=col;
 
 	unordered_map<Case,int,hash_Case>::const_iterator got = sav_maho.find (tmp);
 
@@ -66,7 +77,7 @@ int mahonian (int ligne, int col){
 		if(ligne == 0){
 			if(col == 0){
 
-				 sav_maho[tmp]=1;
+				sav_maho[tmp]=1;
 				return 1;
 			}
 		 sav_maho[tmp]=0;
@@ -75,14 +86,13 @@ int mahonian (int ligne, int col){
 
 		else {
 
-
 			int res = 0;
 			for (int i = 0; i < ligne; ++i)
 			{
 				res+= mahonian(ligne-1, col-i);
 			}
 
-			 sav_maho[tmp]=res;
+			sav_maho[tmp]=res;
 			return res;
 		}
 	}
@@ -365,6 +375,32 @@ vector<Noeud> etage(vector<Noeud> etage_fils, int eta){
 	return niveau;
 }
 
+unordered_map<vector<int>, int, hash_vecteur> etage_ter 
+ (unordered_map<vector<int>, int, hash_vecteur> etage_fils, int eta){
+
+	unordered_map<vector<int>, int, hash_vecteur> nouveau;
+
+	for (auto permut : etage_fils)
+	{
+
+		vector<vector<int>> parents = prec(permut.first);
+
+		for (vector<int> pre : parents)
+		{
+			auto it = nouveau.find (pre);
+
+			if(it != nouveau.end()){
+				int tmp = nouveau[pre];
+				it->second  = tmp + permut.second;
+			}
+			else{
+				nouveau[pre]=permut.second;
+			}
+		}
+	}
+	return nouveau;
+}
+
 int chaines_max_bis(){
 
 	vector<Noeud> premier_etage;
@@ -386,6 +422,66 @@ int chaines_max_bis(){
 
 
 	return premier_etage[0].chemin;
+}
+
+vector<int> id(){
+
+	vector<int> tmp(n,0);
+
+	for (int i = 0 ; i < n ; i++)
+	{
+		tmp[i]=i+1;
+	}
+
+	// for (int i : tmp)
+	// {
+	// 	cout << i;
+	// }
+
+	// cout << endl;
+
+	return tmp;
+}
+
+int chaines_max_ter(){
+
+	unordered_map<vector<int>, int, hash_vecteur> premier_etage;
+
+	int etage_actuel = (n*(n-1)/2)+1 ;
+
+	vector<int> elem = premier(etage_actuel);
+
+	premier_etage[elem]=1;
+
+	while(etage_actuel != 1){
+
+		premier_etage = etage_ter(premier_etage, etage_actuel);
+
+		// cout << " affiche etage " << endl << endl ;
+
+		// cout << "elem " << endl ;
+
+		// for(auto kv : premier_etage) {
+  //   		for (int i : kv.first)
+  //   		{
+  //   			cout << i ;
+  //   		}
+
+  //   		cout << endl ;
+
+  //   		cout << "chemin " <<  kv.second << endl ; 
+  //   	}
+
+		etage_actuel--;
+	}
+
+	// ultra moche mais c'est bizarre, en faisant premier_etage[id()] il ne retrouve pas la valeur
+	for (auto kv : premier_etage)
+	{
+		return kv.second;
+	}
+
+	return premier_etage[id()];
 }
 
 int ch (vector<int> elem){
