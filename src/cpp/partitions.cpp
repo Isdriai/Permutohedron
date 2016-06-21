@@ -8,8 +8,19 @@
 
 using namespace std;
 
-typedef vector<vector<int>> partition;
+struct liste
+{
+	int elem;
+	struct liste *corps;
+};
 
+union partie
+{
+    struct liste elements;
+    bool mur; // si partie est un bool, il sera toujorus a true
+};
+
+typedef vector<partie> partition;
 
 // genere les mots binaires allant de 0 à 2^(n-1)
 vector<bitset<gen>> generation(){
@@ -60,7 +71,7 @@ vector<vector<int>> gen_comp_n (){
 vector<partition> partitions;
 
 vector<partition> gen_partitions(vector<int> generateur, vector<int> possibles, vector<int> acc){
-	
+	if
 }
 
 vector<int> init_possibles(){
