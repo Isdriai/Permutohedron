@@ -14,7 +14,7 @@ using namespace std;
 
 int main(int argc, char const *argv[]){
 
-	cout << chaines_max_ter() << endl ;
+	cout << chaines_max_bis() << endl ;
 
 	// for (vector<int> v : gen_partitions())
 	// {
@@ -25,6 +25,9 @@ int main(int argc, char const *argv[]){
 	// 	cout << endl ;
 	// }
 
+	//vector<partition> res = get_partitions();
+
+	//cout << res.size() << endl ;
 
 
 	return 0;

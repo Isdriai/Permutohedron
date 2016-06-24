@@ -196,7 +196,7 @@ unordered_map<vector<int>, longuint, hash_vecteur> etage_ter
 			auto it = nouveau.find (pre);
 
 			if(it != nouveau.end()){
-				int tmp = nouveau[pre];
+				longuint tmp = nouveau[pre];
 				it->second  = tmp + permut.second; // euh c'est pas la qu'il y a un pb avec les longuint ? 
 			}
 			else{

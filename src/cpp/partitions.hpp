@@ -2,20 +2,8 @@
 
 using namespace std;
 
-struct liste
-{
-	int elem;
-	struct liste *corps;
-};
+typedef vector<vector<int>> partition;
 
-union partie
-{
-    struct liste elements;
-    bool mur; // si partie est un bool, il sera toujorus a true
-};
+//vector<partition> gen_partitions();
 
-typedef vector<partie> partition;
-
-vector<partition> gen_partitions();
-
-vector<partition> partitions();
+vector<partition> get_partitions();
