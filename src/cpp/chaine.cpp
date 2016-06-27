@@ -44,13 +44,19 @@ struct Noeud{
 struct hash_vecteur{
 	size_t operator()(const vector<int> &x) const{
  		
-  		size_t tmp = 0;
+  		 size_t tmp = 0;
 
- 		for (int i = 0 ; i < x.size() ; i++)
- 		{
- 			tmp += std::hash<int>()(x[i])*(i+1);
- 		}
- 		return tmp;
+ 		 for (int i = 0 ; i < x.size() ; i++)
+ 		 {
+ 		 	tmp += std::hash<int>()(x[i])*(i+1);
+ 		 }
+ 		 return tmp;
+
+ 		// std::size_t seed = x.size();
+  	// 	for(auto& i : x) {
+   //  		seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+ 		//  }
+  	// 	return seed;
 	}
 };
 
@@ -129,7 +135,7 @@ vector<Noeud> list_etage(int etage){
 
 	niveau.push_back(first);
 
-	int maho = mahonian(n,etage-1);
+	int maho = mahonian(n+1,etage-1);
 
 	for(int i = 0 ; i < maho - 1 ; i++){
 

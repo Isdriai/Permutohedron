@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unordered_map>
 #include "const.hpp"
+#include <thread>
 
 using namespace std;
 
@@ -47,26 +48,33 @@ bool inf (int a, int b){
 
 unordered_map<Case, int, hash_Case> sav_maho;
 
-int mahonian (int ligne, int col){
+int min(int a, int b){
+	if (a < b)
+		return a;
+
+	return b;
+}
+
+int mahonian_h(int ligne, int col){
 	
 	Case tmp;
 	tmp.lig=ligne;
 	tmp.co=col;
 
-	unordered_map<Case,int,hash_Case>::const_iterator got = sav_maho.find (tmp);
+	unordered_map<Case,int,hash_Case>::const_iterator got = sav_maho.find(tmp);
 
-	 if(got != sav_maho.end()) {
-	 	return sav_maho[tmp];
+	try {
+	 	return sav_maho.at(tmp);
 	 }
-	 else{
+	catch(exception e){
 
-		if(ligne == 0){
-			if(col == 0){
+		if(tmp.lig == 0){
+			if(tmp.co == 0){
 
 				sav_maho[tmp]=1;
 				return 1;
 			}
-		 sav_maho[tmp]=0;
+		sav_maho[tmp]=0;
 		return 0;
 		}
 
@@ -75,12 +83,79 @@ int mahonian (int ligne, int col){
 			int res = 0;
 			for (int i = 0; i < ligne; ++i)
 			{
-				res+= mahonian(ligne-1, col-i);
+				res+= mahonian_h(ligne-1, col-i);
 			}
 
 			sav_maho[tmp]=res;
 			return res;
 		}
+	}
+}
+
+vector<vector<int>> sav_mahonian{{0}};
+
+void affiche_maho(){
+	for ( vector<int> etage : sav_mahonian){
+		for (int i : etage )
+		{
+			cout << i << " " ;
+		}
+		cout << endl;
+	}
+}
+
+void construire(int ligne);
+
+// ne veut pas retourner la bonne valeur au premier appel
+ int mahonia(int ligne, int col){
+  	//affiche_maho();
+  	//cout << " mahonian     ligne  " << ligne << "  col " << col << endl << endl << endl << endl ;
+  	if (col >= (ligne*(ligne-1)/2)+1 )
+  	{
+  		return 0;
+  	}
+
+  	try {
+  		return sav_mahonian.at(ligne).at(col);
+  	}
+  	catch (exception e){
+  		construire(ligne);
+  		mahonia(ligne,col);
+  	}
+  }
+
+int mahonian(int ligne, int col){
+	mahonia(ligne, col);
+	return mahonia(ligne, col);
+}
+
+void construire(int ligne){
+	//cout << "contruire   ligne " << ligne << endl ;
+	if(ligne == 1){
+		sav_mahonian.push_back(vector<int>{1});
+	}
+	else{
+		int nbr_cases = (ligne*(ligne-1)/2)+1;
+		vector<int> etage(nbr_cases);
+
+		for (int i = 0; i < nbr_cases; ++i)
+		{
+		
+			int tmp = 0 ;
+
+			for (int j = 0; j <= min(i, ligne-1); ++j)
+			{
+				int acces = i-j;
+
+				tmp+= mahonian(ligne-1, acces);
+				
+			}
+
+			etage[i]=tmp;
+		}
+
+		//cout << " etage " << ligne << " ok " << endl ;
+		sav_mahonian.push_back(etage);
 	}
 }
 

@@ -14,20 +14,20 @@ using namespace std;
 
 int main(int argc, char const *argv[]){
 
-	cout << chaines_max_bis() << endl ;
+	 cout << chaines_max_bis() << endl ;
 
-	// for (vector<int> v : gen_partitions())
-	// {
-	// 	for (int i : v)
-	// 	{
-	// 		cout << i ;
-	// 	}
-	// 	cout << endl ;
-	// }
+	 //cout << "res maho_h " << mahonian_h(20,5) << endl ;
 
-	//vector<partition> res = get_partitions();
+	 //cout << "premier " << mahonian(20, 5) << endl ;
+	 //cout << "maho " << mahonian(20, 5) << endl ;
 
-	//cout << res.size() << endl ;
+
+	 //cout << endl << endl ;
+
+	 //cout << "res premier " << mahonian(3,2) << endl ;
+	 //cout << "res maho " << mahonian(7,10) << endl ;
+
+	// cout << "chaine " << chaines_max_bis() << endl ;
 
 
 	return 0;
