@@ -5,13 +5,19 @@
 #include <stdlib.h>
 #include "basique.hpp"
 #include "const.hpp"
+#include <math.h>
+#include <array>
 
 using namespace std;
 
-typedef vector<vector<int>> partition;
+struct Partition
+{
+	array<int,n> suite {0};
+	array<bool,n-1> barres {false};
+};
 
-
-void affiche_vect(vector<int> v){
+template<size_t N>
+void affiche_tab(array<int,N> v){
 	for (int i : v )
 	{
 		cout << i << " " ;
@@ -20,21 +26,22 @@ void affiche_vect(vector<int> v){
 	cout << endl ;
 }
 
-void affiche_vect_vect(vector<vector<int>> v){
-	for (vector<int> elem : v)
+void affiche_vect(vector<int> v){
+	for (int i : v)
 	{
-		affiche_vect(elem);
+		cout << i << " " ;
 	}
+	cout << endl ;
 }
 
 // genere les mots binaires allant de 0 à 2^(n-1)
-vector<bitset<n>> generation(){
+array<bitset<n>,(int)pow(2.0,(double)(n-1))> generation(){
 
-	vector<bitset<n>> solutions;
+	array<bitset<n>,(int)pow(2.0,(double)(n-1))> solutions;
 
 	for (int i = 0; i < (2 << n-2 ) ; ++i)
 	{
-		solutions.push_back(bitset<n>(i*2+1));
+		solutions[i]=(bitset<n>(i*2+1));
 	}
 
 	return solutions;
@@ -42,17 +49,18 @@ vector<bitset<n>> generation(){
 
 
 // donne pour un mot binaire donné la distribution des elements dans la partition
-vector<int> bijection (bitset<n> const & bij){
-	vector<int> tmp;
+array<int,n> bijection (bitset<n> const & bij){
+	array<int,n> tmp;
 
 	int cpt = 0 ;
-
+	int poche=0;
 
 	for (int i = n-1; i >= 0 ; i--)
 	{ 
 
 		if(bij[i]){
-			tmp.push_back(cpt+1);
+			tmp[poche] = cpt+1;
+			poche++;
 			cpt = 0 ;
 		}
 		else {
@@ -60,24 +68,31 @@ vector<int> bijection (bitset<n> const & bij){
 		}
 	}
 
+	for (int i = poche ; i < n ; ++i)
+	{
+		tmp[i]=0;
+	}
 
 	return tmp;
 }
 
 // genere toutes les repartitions possibles des elements
-vector<vector<int>> gen_comp_n (){
+array<array<int,n>,(int)pow(2.0,(double)(n-1))> gen_comp_n (){
 
-	vector<vector<int>> res ;
+	array<array<int,n>,(int)pow(2.0,(double)(n-1))> res ;
+	int cpt = 0 ;
 
 	for (bitset<n> & bij : generation())
 	{
-		res.push_back(bijection(bij));
+		res[cpt]=bijection(bij);
+		cpt++;
 	}
 
 	return res;
 }
 
-int maximum(vector<int> v){
+template<size_t N>
+int maximum(array<int,N> v){
 	int tmp=0;
 	for (int i : v)
 	{
@@ -120,63 +135,78 @@ int maximum(vector<int> v){
 	PS = n est le nbr d'éléments ds la partition
 */
 
-void gen_partitions
-(vector<partition> &partitions, vector<int> generateur, vector<int> possibles, vector<vector<int>> acc, vector<int> part_act){
+template<size_t N>
+void affiche_b(array<bool,N> tab){
+	for (int i = 0; i < N; ++i)
+	{
+		cout << tab[i] << " ";
+	}
 
-	if(generateur.at(0) == 1 ){
-		try 
-		{		
-			generateur.at(1);
+	cout << endl;
+}
+
+void gen_partitions
+(vector<Partition> &partitions, array<int,n> generateur,int gen, vector<int> possibles, Partition acc, int fait){
+	cout << endl << endl << endl << endl ;
+	cout << " generateur " << endl;
+	affiche_tab(generateur);
+	cout << " gen " << gen << endl;
+	cout << " possibles " << endl;
+	affiche_vect(possibles);
+	cout << " suite " << endl;
+	affiche_tab(acc.suite);
+	cout << " barres " << endl;
+	affiche_b(acc.barres);
+	cout << " fait " << fait;
+
+
+
+	if(generateur.at(gen) == 1 ){
+		if(generateur.at(gen+1) != 0){
+
 			// 1::_
 			for (int i = 0 ; i < possibles.size() ; i++ )
 			{
-				try {
-					if (possibles[i] < part_act.at(part_act.size()-1))
-					{
-						continue;
-					}
+				if (!acc.barres[fait] && possibles[i] < acc.suite[fait])
+				{
+					continue;
 				}
-				catch(exception e){}
 
 				vector<int> poss_tmp = possibles;
-				vector<int> gen_tmp = generateur;
-				vector<vector<int>> acc_tmp = acc;
-				vector<int> part_act_tmp = part_act;
 
-				part_act_tmp.push_back(possibles[i]);
+				Partition acc_tmp = acc;
+				acc_tmp.suite[fait+1] = possibles[i];
+				acc_tmp.barres[fait] = true;
 				poss_tmp.erase(poss_tmp.begin() + i);
-				acc_tmp.push_back(part_act_tmp);
-				gen_tmp.erase(gen_tmp.begin());
-				vector<int> new_part;
-				gen_partitions(partitions, gen_tmp , poss_tmp, acc_tmp, new_part);
-			}
+
+				gen_partitions(partitions, generateur , gen+1 , poss_tmp, acc_tmp, fait+1);
 		}
-		catch(exception e) { 	
+			
+			
+		}
+		else { 	
 
 			// 1::[]
 			for (int i : possibles)
 			{
-				if (!part_act.empty() && i < part_act.at(part_act.size()-1))
+				if (!acc.barres[fait] && i < acc.suite[fait])
 				{
 					continue;
 				}
-				else{
-					vector<vector<int>> acc_tmp = acc;
-					vector<int> part_act_tmp = part_act;
 
-					part_act_tmp.push_back(i);
-					acc_tmp.push_back(part_act_tmp);
-					partitions.push_back(acc_tmp);
-				}
+				Partition acc_tmp = acc;
+				acc_tmp.suite[fait+1] = i;
+				partitions.push_back(acc_tmp);
+				
 			}
 		}
 	}
 	else{ 	
 		// a::_
-		for (int i = 0; i <= possibles.size()-(generateur[0]); ++i)
+		for (int i = 0; i <= possibles.size()-(generateur[gen]); ++i)
 		{
 
-			if (!part_act.empty() && possibles[i] < part_act.at(part_act.size()-1))
+			if (!acc.barres[fait] && i < acc.suite[fait])
 			{
 				continue;
 			}
@@ -184,31 +214,33 @@ void gen_partitions
 
 
 				vector<int> poss_tmp = possibles;
-				vector<int> gen_tmp = generateur;
-				vector<vector<int>> acc_tmp = acc;
-				vector<int> part_act_tmp = part_act;
+				Partition acc_tmp = acc;
+				array<int,n> gen_tmp = generateur;
 
-				gen_tmp[0]--;
-				part_act_tmp.push_back(possibles[i]);
+				gen_tmp[gen]--;
+				acc_tmp.suite[fait+1] = possibles[i];
+
 				poss_tmp.erase(poss_tmp.begin() + i);
-				gen_partitions(partitions, gen_tmp, poss_tmp, acc, part_act_tmp);
+
+				gen_partitions(partitions, gen_tmp, gen, poss_tmp, acc, fait+1);
 			}
 		}
 	}
 }
 
 vector<int> init_possibles(){
-	std::vector<int> tmp;
+	vector<int> tmp(n);
 
 	for (int i = 1 ; i <= n; ++i)
 	{
-		tmp.push_back(i);
+		tmp[i-1]=i;
 	}
 
 	return tmp;
 }
 
-void affiche_part(vector<partition> part){
+/*
+void affiche_part(vector<Partition> part){
 	for (partition p : part)
 	{
 		affiche_vect_vect(p);
@@ -216,31 +248,22 @@ void affiche_part(vector<partition> part){
 	}
 	cout << endl ;
 }
+*/
 
 //donne toutes les partitions possibles pour n 
-vector<partition> get_partitions(){
+vector<Partition> get_partitions(){
 
+	array<array<int,n>,(int)pow(2.0,(double)(n-1))> generateurs = gen_comp_n();
 
-	//cout << bitset<n>(51) << endl; 
-	//affiche_vect(bijection(bitset<n>(51)));
+	vector<int> possibles = init_possibles();
 
-	vector<vector<int>> generateurs = gen_comp_n();
-
-
-	vector<int> possibles= init_possibles();
-	vector<partition> partitions;
-
-	//cout << bitset<n>(3) << endl ;
-	//std::vector<int> test = bijection(bitset<n>(3));
+	vector<Partition> partitions;
 	
-	 for (vector<int> gen : generateurs)
+	 for (array<int,n> gen : generateurs)
 	 {
-	 	gen_partitions(partitions, gen, possibles, vector<vector<int>> (), vector<int> ()) ;
+	 	Partition vide;
+	 	gen_partitions(partitions, gen, 0, possibles, vide, 0) ;
 	 }
-	 	//gen_partitions(partitions, test, possibles, vector<vector<int>> (), vector<int> ());
-
-	 affiche_part(partitions);
-	 cout << endl << endl << endl << endl ;
 
 	return partitions;
 }

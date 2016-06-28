@@ -117,7 +117,6 @@ void affiche_etage ( vector<Noeud> et){
 	}
 }
 
-
 vector<Noeud> list_etage(int etage){
 	vector<Noeud> niveau;
 
@@ -152,7 +151,6 @@ vector<Noeud> list_etage(int etage){
 
 	return niveau;
 }
-
 
 vector<Noeud> etage(vector<Noeud> etage_fils, int eta){
 
