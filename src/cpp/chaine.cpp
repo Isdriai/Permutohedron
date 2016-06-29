@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unordered_map>
-#include "const.hpp"
 #include "basique.hpp"
+#include <array>
 
 using namespace std;
 
@@ -38,11 +38,11 @@ std::ostream& operator<<( std::ostream& dest, longuint value )
 
 struct Noeud{
 	longuint chemin;
-	vector<int> elem;
+	array<int,n> elem;
 };
 
 struct hash_vecteur{
-	size_t operator()(const vector<int> &x) const{
+	size_t operator()(const array<int,n> &x) const{
  		
   		 size_t tmp = 0;
 
@@ -74,9 +74,15 @@ int somme (int e){
 	return tmp;
 }
 
-vector<int> premier(int etage){
+array<int,n> premier(int etage){
 
-	vector<int> premier (n,0);
+	array<int,n> premier;
+
+	for (int i = 0; i < n; ++i)
+	{
+		premier[i] = 0;
+	}
+
 	int reste = etage-1; // l'etage 1 a 0 permutation
 
 	for (int i = 1; i < n; ++i)
@@ -95,7 +101,7 @@ vector<int> premier(int etage){
 	return permut_to_lehmer(premier);
 }
 
-bool egale(vector<int> a, vector<int> b){
+bool egale(array<int,n> const & a, array<int,n> const & b){
 	for(int i = 0 ; i < n ; i++){
 		if(a[i] != b[i]){
 			return false;
@@ -105,7 +111,7 @@ bool egale(vector<int> a, vector<int> b){
 	return true;
 }
 
-void affiche_etage ( vector<Noeud> et){
+void affiche_etage ( vector<Noeud> const & et){
 
 	for (Noeud n : et )
 	{
@@ -152,22 +158,16 @@ vector<Noeud> list_etage(int etage){
 	return niveau;
 }
 
-vector<Noeud> etage(vector<Noeud> etage_fils, int eta){
-
-
-	// génération de l'étage precedent
+vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
 
 	vector<Noeud> niveau = list_etage(eta-1); 
 
-	// calcul des chemins
-	// on pourrait peut etre aller plus vite avec une table de hash ? 
-	// ca limiterait le tps passé a retrouver les noeuds correspondant aux peres du noeud actuel
 
 	for (Noeud const & noeud : etage_fils)
 	{
-		vector<vector<int>> parents = prec(noeud.elem);
+		vector<array<int,n>> parents = prec(noeud.elem);
 
-		for (vector<int> const & pre : parents)
+		for (array<int,n> const & pre : parents)
 		{
 
 
@@ -185,17 +185,17 @@ vector<Noeud> etage(vector<Noeud> etage_fils, int eta){
 	return niveau;
 }
 
-unordered_map<vector<int>, longuint, hash_vecteur> etage_ter 
- (unordered_map<vector<int>, longuint, hash_vecteur> etage_fils, int eta){
+unordered_map<array<int,n>, longuint, hash_vecteur> etage_ter 
+ (unordered_map<array<int,n>, longuint, hash_vecteur> const & etage_fils, int eta){
 
-	unordered_map<vector<int>, longuint, hash_vecteur> nouveau;
+	unordered_map<array<int,n>, longuint, hash_vecteur> nouveau;
 
-	for (auto permut : etage_fils)
+	for (auto const & permut : etage_fils)
 	{
 
-		vector<vector<int>> parents = prec(permut.first);
+		vector<array<int,n>> parents = prec(permut.first);
 
-		for (vector<int> pre : parents)
+		for (array<int,n> const & pre : parents)
 		{
 			auto it = nouveau.find (pre);
 
@@ -236,11 +236,11 @@ longuint chaines_max_bis(){
 
 longuint chaines_max_ter(){
 
-	unordered_map<vector<int>, longuint, hash_vecteur> premier_etage;
+	unordered_map<array<int,n>, longuint, hash_vecteur> premier_etage;
 
 	int etage_actuel = (n*(n-1)/2)+1 ;
 
-	vector<int> elem = premier(etage_actuel);
+	array<int,n> elem = premier(etage_actuel);
 
 	premier_etage[elem]=1;
 
@@ -274,9 +274,9 @@ longuint chaines_max_ter(){
 	return 0;
 }
 
-int ch (vector<int> elem){
+int ch (array<int,n> const & elem){
 
-	vector<vector<int>> possibles = succ(elem);
+	vector<array<int,n>> possibles = succ(elem);
 
 	int nbr_suiv = possibles.size();
 
@@ -286,7 +286,7 @@ int ch (vector<int> elem){
 
 	int rajoute=nbr_suiv-1;
 
-	for(vector<int> suiv : possibles){
+	for(array<int,n> suiv : possibles){
 		rajoute += ch(suiv);
 	}
 
@@ -294,10 +294,13 @@ int ch (vector<int> elem){
 }
 
 int chaines_max(){
-	std::vector<int> premier_elem;
+	std::array<int,n> premier_elem;
+
+	int cpt=0;
 
 	for(int i=1 ; i <= n ; i++){
-		premier_elem.push_back(i);
+		premier_elem[cpt]=i;
+		cpt++;
 	}
 
 	return 1+ch(premier_elem);

@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <unordered_map>
 #include "const.hpp"
-#include <thread>
+#include <array>
+
 
 using namespace std;
 
@@ -159,12 +160,12 @@ void construire(int ligne){
 	}
 }
 
-vector<vector<int>> haut_bas (vector<int> elem, bool (*compare)(int,int)){
+vector<array<int,n>> haut_bas (array<int,n> const & elem, bool (*compare)(int,int)){
 
-	std::vector<vector<int>> res;
+	std::vector<array<int,n>> res;
 
 	for(int i = 0 ; i < elem.size()-1 ; i++){
-		vector<int> tampon (elem);
+		array<int,n> tampon = elem;
 
 		if(compare(elem[i], elem[i+1])){
 			tampon[i]=elem[i+1];
@@ -176,16 +177,17 @@ vector<vector<int>> haut_bas (vector<int> elem, bool (*compare)(int,int)){
 	return res;
 }
 
-vector<vector<int>> succ (vector<int> elem){
+vector<array<int,n>> succ (array<int,n> const & elem){
 	return haut_bas(elem,inf);
 }
 
-vector<vector<int>> prec (vector<int> elem){
+vector<array<int,n>> prec (array<int,n> const & elem){
 	return haut_bas(elem,sup);
 }
 
-vector<int> lehmer_to_permut(vector<int> elem){
-	vector<int> tmp;
+array<int,n> lehmer_to_permut(array<int,n> const & elem){
+	array<int,n> tmp;
+	int cpt=0;
 
 	for (int i = 0 ; i < n ; i++)
 	{
@@ -199,13 +201,32 @@ vector<int> lehmer_to_permut(vector<int> elem){
 			}
 		}
 
-		tmp.push_back(compte);
+		tmp[cpt]=compte;
+		cpt++;
 	}
 
 	return tmp;
 }
 
-vector<int> permut_to_lehmer(vector<int> lehm){
+void affiche_vect(vector<int> const & v){
+	for (int i : v)
+	{
+		cout << i << " " ;
+	}
+	cout << endl ;
+}
+
+void affiche_tab(array<int,n> const & v){
+	for (int i : v)
+	{
+		cout << i << " " ;
+	}
+	cout << endl ;
+}
+
+array<int,n> permut_to_lehmer(array<int,n> const & lehm){
+
+	//affiche_tab(lehm);
 
 	vector<int> possibles;
 
@@ -217,12 +238,16 @@ vector<int> permut_to_lehmer(vector<int> lehm){
 
 
 
-	vector<int> traduction;
+	array<int,n> traduction;
+	int cpt=0;
 
 	for (int i : lehm)
 	{
-
-		traduction.push_back(possibles[i]);
+		//cout << " cpt " << cpt << endl ;
+		//affiche_vect(possibles);
+		traduction[cpt]=possibles[i];
+		//cout << " coucou " << endl ;
+		cpt++;
 
 		possibles.erase(possibles.begin() + i );
 	}
@@ -232,9 +257,9 @@ vector<int> permut_to_lehmer(vector<int> lehm){
 	return traduction;
 }
 
-vector<int> next(vector<int> elem){
+array<int,n> next(array<int,n> const & elem){
 
-	vector<int> lehm = lehmer_to_permut(elem);
+	array<int,n> lehm = lehmer_to_permut(elem);
 
 
 	int ramassage=0;
@@ -276,7 +301,7 @@ vector<int> next(vector<int> elem){
 	return permut_to_lehmer(lehm);
 }
 
-int cpt(vector<int> lehm){
+int cpt(array<int,n> const & lehm){
 	int tmp = 0 ;
 	for (int i : lehm )
 	{
@@ -286,8 +311,8 @@ int cpt(vector<int> lehm){
 	return tmp;
 }
 
-int ranka(vector<int> elem){
-	vector<int> lehm = lehmer_to_permut(elem);
+int ranka(array<int,n> const & elem){
+	array<int,n> lehm = lehmer_to_permut(elem);
 
 	int p = cpt(lehm);
 	int niv = n;
