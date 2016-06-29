@@ -95,16 +95,6 @@ int mahonian_h(int ligne, int col){
 
 vector<vector<int>> sav_mahonian{{0}};
 
-void affiche_maho(){
-	for ( vector<int> etage : sav_mahonian){
-		for (int i : etage )
-		{
-			cout << i << " " ;
-		}
-		cout << endl;
-	}
-}
-
 void construire(int ligne);
 
 // ne veut pas retourner la bonne valeur au premier appel
@@ -206,22 +196,6 @@ array<int,n> lehmer_to_permut(array<int,n> const & elem){
 	}
 
 	return tmp;
-}
-
-void affiche_vect(vector<int> const & v){
-	for (int i : v)
-	{
-		cout << i << " " ;
-	}
-	cout << endl ;
-}
-
-void affiche_tab(array<int,n> const & v){
-	for (int i : v)
-	{
-		cout << i << " " ;
-	}
-	cout << endl ;
 }
 
 array<int,n> permut_to_lehmer(array<int,n> const & lehm){

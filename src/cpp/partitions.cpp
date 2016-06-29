@@ -15,33 +15,6 @@ struct Partition
 	array<bool,n-1> barres {false};
 };
 
-template<size_t N>
-void affiche_tab(array<int,N> v){
-	for (int i : v )
-	{
-		cout << i << " " ;
-	}
-
-	cout << endl ;
-}
-
-template<size_t N>
-void affiche_b(array<bool,N> tab){
-	for (int i = 0; i < N; ++i)
-	{
-		cout << tab[i] << " ";
-	}
-
-	cout << endl;
-}
-
-void affiche_partition(Partition p){
-	cout << " suite " << endl ;
-	affiche_tab(p.suite);
-	cout << " barres " << endl ;
-	affiche_b(p.barres);
-}
-
 // genere les mots binaires allant de 0 à 2^(n-1)
 array<bitset<n>,(int)pow(2.0,(double)(n-1))> generation(){
 
@@ -54,7 +27,6 @@ array<bitset<n>,(int)pow(2.0,(double)(n-1))> generation(){
 
 	return solutions;
 }
-
 
 // donne pour un mot binaire donné la distribution des elements dans la partition
 array<int,n> bijection (bitset<n> const & bij){

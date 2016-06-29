@@ -111,18 +111,6 @@ bool egale(array<int,n> const & a, array<int,n> const & b){
 	return true;
 }
 
-void affiche_etage ( vector<Noeud> const & et){
-
-	for (Noeud n : et )
-	{
-		for (int i : n.elem)
-		{
-			cout << i ;
-		}
-		cout << endl << " chemin " << n.chemin << endl << endl << endl;
-	}
-}
-
 vector<Noeud> list_etage(int etage){
 	vector<Noeud> niveau;
 
