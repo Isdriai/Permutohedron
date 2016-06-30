@@ -2,8 +2,6 @@
 #include <array>
 #include "const.hpp"
 
-
-
 using namespace std;
 
 struct Partition
@@ -12,6 +10,5 @@ struct Partition
 	array<bool,n-1> barres;
 };
 
-//vector<partition> gen_partitions();
 
 vector<Partition> get_partitions();

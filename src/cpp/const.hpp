@@ -1,1 +1,1 @@
-const int n = 10 ;
+const int n = 8;

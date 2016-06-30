@@ -48,7 +48,7 @@ struct hash_vecteur{
 
  		 for (int i = 0 ; i < x.size() ; i++)
  		 {
- 		 	tmp += std::hash<int>()(x[i])*(i+1);
+ 		 	tmp += (x[i])*(i+1);
  		 }
  		 return tmp;
 

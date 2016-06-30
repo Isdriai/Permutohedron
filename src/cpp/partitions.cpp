@@ -15,10 +15,12 @@ struct Partition
 	array<bool,n-1> barres {false};
 };
 
-// genere les mots binaires allant de 0 à 2^(n-1)
-array<bitset<n>,(int)pow(2.0,(double)(n-1))> generation(){
+const int taille_gen = (int)pow(2.0,(double)(n-1));
 
-	array<bitset<n>,(int)pow(2.0,(double)(n-1))> solutions;
+// genere les mots binaires allant de 0 à 2^(n-1)
+array<bitset<n>, taille_gen> generation(){
+
+	array<bitset<n>, taille_gen> solutions;
 
 	for (int i = 0; i < (2 << n-2 ) ; ++i)
 	{
@@ -57,9 +59,9 @@ array<int,n> bijection (bitset<n> const & bij){
 }
 
 // genere toutes les repartitions possibles des elements
-array<array<int,n>,(int)pow(2.0,(double)(n-1))> gen_comp_n (){
+array<array<int,n>, taille_gen> gen_comp_n (){
 
-	array<array<int,n>,(int)pow(2.0,(double)(n-1))> res ;
+	array<array<int,n>, taille_gen> res ;
 	int cpt = 0 ;
 
 	for (bitset<n> & bij : generation())
@@ -154,8 +156,6 @@ void gen_partitions
 				Partition acc_tmp = acc;
 				acc_tmp.suite[fait] = i;
 				partitions.push_back(acc_tmp);
-				affiche_partition(acc_tmp);
-				cout << endl << endl ;
 				
 			}
 		}
@@ -200,7 +200,7 @@ vector<int> init_possibles(){
 //donne toutes les partitions possibles pour n 
 vector<Partition> get_partitions(){
 
-	array<array<int,n>,(int)pow(2.0,(double)(n-1))> generateurs = gen_comp_n();
+	array<array<int,n>, taille_gen> generateurs = gen_comp_n();
 
 	vector<int> possibles = init_possibles();
 
