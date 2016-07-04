@@ -48,7 +48,7 @@ struct hash_vecteur{
 
  		 for (int i = 0 ; i < x.size() ; i++)
  		 {
- 		 	tmp += (x[i])*(i+1);
+ 		 	tmp += std::hash<int>()(x[i])*(i+1);
  		 }
  		 return tmp;
 
@@ -111,6 +111,27 @@ bool egale(array<int,n> const & a, array<int,n> const & b){
 	return true;
 }
 
+void affiche_elem(array<int,n> v){
+	for (int i : v)
+	{
+		cout << i << " ";
+	}
+	cout << endl;
+}
+
+void affiche_etage(vector<Noeud> const & etage){
+
+	cout << " nouvel etage " << endl ;
+
+	for (Noeud n : etage)
+	{
+		affiche_elem(n.elem);
+		cout << " nbr de chemin " << n.chemin << endl ;
+	}
+
+	cout << endl << endl ;
+}
+
 vector<Noeud> list_etage(int etage){
 	vector<Noeud> niveau;
 
@@ -120,27 +141,17 @@ vector<Noeud> list_etage(int etage){
 
 	first.chemin=0;
 
-	Noeud suiv;
-
-
-	suiv.elem = next(first.elem);
-	suiv.chemin = 0;
-
 	niveau.push_back(first);
 
-	int maho = mahonian(n+1,etage-1);
+	int maho = mahonian(n,etage-1);
 
-	for(int i = 0 ; i < maho - 1 ; i++){
+	//cout << "maho " << maho  << "   etage-1 " << etage-1 << endl ;
 
+	for(int i = 0 ; i < maho-1 ; i++){
 
-		niveau.push_back(suiv);
-
-
-		first.elem= suiv.elem;
-
-
-		suiv.elem= next(first.elem);
-
+		first.elem= next(first.elem);
+		niveau.push_back(first);
+		
 	}
 
 	return niveau;
@@ -148,8 +159,9 @@ vector<Noeud> list_etage(int etage){
 
 vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
 
-	vector<Noeud> niveau = list_etage(eta-1); 
+	//affiche_etage(etage_fils);
 
+	vector<Noeud> niveau = list_etage(eta-1); 
 
 	for (Noeud const & noeud : etage_fils)
 	{
@@ -157,7 +169,6 @@ vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
 
 		for (array<int,n> const & pre : parents)
 		{
-
 
 			niveau[ranka(pre)].chemin+=noeud.chemin;
 			// for (Noeud & precedent : niveau)

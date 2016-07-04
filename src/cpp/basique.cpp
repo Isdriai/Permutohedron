@@ -6,17 +6,16 @@
 #include "const.hpp"
 #include <array>
 
-
 using namespace std;
-
-struct Noeud{
-	unsigned long long int chemin;
-	vector<int> elem;
-};
 
 struct Case{
 	int lig;
 	int co;
+};
+
+struct Maho{
+	int res;
+	int somme_suiv;
 };
 
 struct hash_Case{
@@ -25,6 +24,17 @@ struct hash_Case{
   }
 };
 
+int fact (int x){
+
+	int tmp = 1 ;
+
+	for (int i = x ; i > 1; --i)
+	{
+		tmp*= i;
+	}
+
+	return tmp;
+}
 
 bool operator==(Case const& a, Case const& b){
 	return a.lig == b.lig && a.co == b.co;
@@ -38,6 +48,9 @@ bool inf (int a, int b){
 	return a < b;
 }
 
+const int taille = n*(n-1)/2 + 1;
+array<array<Maho, taille>, n> sav_maho;
+//vector<vector<Maho>> sav_maho;
 /*
 	Mahonian fonction
 
@@ -47,8 +60,6 @@ bool inf (int a, int b){
 
 */
 
-unordered_map<Case, int, hash_Case> sav_maho;
-
 int min(int a, int b){
 	if (a < b)
 		return a;
@@ -56,98 +67,105 @@ int min(int a, int b){
 	return b;
 }
 
-int mahonian_h(int ligne, int col){
-	
-	Case tmp;
-	tmp.lig=ligne;
-	tmp.co=col;
-
-	unordered_map<Case,int,hash_Case>::const_iterator got = sav_maho.find(tmp);
-
-	try {
-	 	return sav_maho.at(tmp);
-	 }
-	catch(exception e){
-
-		if(tmp.lig == 0){
-			if(tmp.co == 0){
-
-				sav_maho[tmp]=1;
-				return 1;
-			}
-		sav_maho[tmp]=0;
-		return 0;
+void affiche_maho(){
+	for (array<Maho, taille> el : sav_maho)
+	{
+		for (Maho e : el)
+		{
+			cout << e.res << ","<< e.somme_suiv << " " ;
 		}
-
-		else {
-
-			int res = 0;
-			for (int i = 0; i < ligne; ++i)
-			{
-				res+= mahonian_h(ligne-1, col-i);
-			}
-
-			sav_maho[tmp]=res;
-			return res;
-		}
+		cout << endl ;
 	}
 }
 
-vector<vector<int>> sav_mahonian{{0}};
-
-void construire(int ligne);
-
-// ne veut pas retourner la bonne valeur au premier appel
- int mahonia(int ligne, int col){
-  	//affiche_maho();
-  	//cout << " mahonian     ligne  " << ligne << "  col " << col << endl << endl << endl << endl ;
-  	if (col >= (ligne*(ligne-1)/2)+1 )
-  	{
-  		return 0;
-  	}
-
-  	try {
-  		return sav_mahonian.at(ligne).at(col);
-  	}
-  	catch (exception e){
-  		construire(ligne);
-  		mahonia(ligne,col);
-  	}
-  }
+// Attention, le triangle commence avec la ligne indexée par 1, il y a donc un decalage entre 
+// la ligne que demande l'utilisateur et le tableau reellement complété
 
 int mahonian(int ligne, int col){
-	mahonia(ligne, col);
-	return mahonia(ligne, col);
+	if (col >= n*(n+1)/2 + 1)
+	{
+		return 0;
+	}
+  	return sav_maho[ligne-1][col].res;
 }
 
-void construire(int ligne){
-	//cout << "contruire   ligne " << ligne << endl ;
-	if(ligne == 1){
-		sav_mahonian.push_back(vector<int>{1});
-	}
-	else{
-		int nbr_cases = (ligne*(ligne-1)/2)+1;
-		vector<int> etage(nbr_cases);
+void init_maho(){
 
-		for (int i = 0; i < nbr_cases; ++i)
-		{
+	for (int i = 0 ; i < n ; ++i)
+	{
+		int s_suiv = fact(i+1);
 		
-			int tmp = 0 ;
+		for (int j = 0; j < taille ; ++j)
+		{
+			Maho emp;
 
-			for (int j = 0; j <= min(i, ligne-1); ++j)
+			if ( j >= i*(i+1)/2 + 1)
 			{
-				int acces = i-j;
-
-				tmp+= mahonian(ligne-1, acces);
-				
+				emp.res=0;				
+			}
+			else if (i == 0)
+			{
+				emp.res=1;	
+			}
+			else
+			{	
+				int tmp = 0;
+				for (int k = 0; k <= min(i, j) ; ++k)
+				{
+					tmp+= mahonian(i,j-k);
+				}
+				emp.res = tmp;				
 			}
 
-			etage[i]=tmp;
+			if (s_suiv){
+				s_suiv-=emp.res;
+			}
+			emp.somme_suiv=s_suiv;
+			sav_maho[i][j]=emp;
 		}
-
-		//cout << " etage " << ligne << " ok " << endl ;
-		sav_mahonian.push_back(etage);
 	}
+}
+
+/*
+void init_maho(){
+	for(int i = 0 ; i < n ; i++){
+		vector<Maho> etage (i*(i-1)/2 + 1);
+		int prec = 0;
+
+		for (int j = 0; j < n*(n-1)/2 + 1; ++j)
+		{
+			Maho emp;
+
+			if (i == 0)
+			{
+				emp.res=1;
+				emp.somme_prec=0;
+				etage[j]=emp;
+			}
+			else 
+			{	
+				int tmp = 0;
+				for (int k = 0; k <= min(i, j) ; ++k)
+				{
+					tmp+= sav_maho[i][j-k].res;
+				}
+				emp.res = tmp;
+				emp.somme_prec = prec;
+				etage[j]=emp;
+				prec += tmp;
+			}
+		}
+		sav_maho.push_back(etage);
+	}
+}
+*/
+
+int maho_suiv(int ligne, int col){
+	if (col >= n*(n+1)/2 + 1)
+	{
+		col = n*(n+1)/2;
+	}
+	return sav_maho[ligne-1][col].somme_suiv;
 }
 
 vector<array<int,n>> haut_bas (array<int,n> const & elem, bool (*compare)(int,int)){
@@ -200,44 +218,31 @@ array<int,n> lehmer_to_permut(array<int,n> const & elem){
 
 array<int,n> permut_to_lehmer(array<int,n> const & lehm){
 
-	//affiche_tab(lehm);
-
 	vector<int> possibles;
-
-
 	for (int i = 1; i <= n ; i++)
 	{
 		possibles.push_back(i);
 	}
-
-
-
 	array<int,n> traduction;
 	int cpt=0;
-
 	for (int i : lehm)
 	{
-		//cout << " cpt " << cpt << endl ;
-		//affiche_vect(possibles);
 		traduction[cpt]=possibles[i];
-		//cout << " coucou " << endl ;
 		cpt++;
-
 		possibles.erase(possibles.begin() + i );
 	}
-
-
 
 	return traduction;
 }
 
+// comportement incertain si l'élément n'a pas de suivant !
 array<int,n> next(array<int,n> const & elem){
 
 	array<int,n> lehm = lehmer_to_permut(elem);
 
 
 	int ramassage=0;
-	int pivot;
+	int pivot=0;
 
 	for (int i = n-2; i > 0; i--)
 	{
@@ -294,10 +299,17 @@ int ranka(array<int,n> const & elem){
 
 	for(int i : lehm){
 
-		for (int j = 0 ; j < i ; j++ )
-		{
-			min+= mahonian(niv-1, p-j);
-		}
+		//for (int j = 0 ; j < i ; j++ )
+		//{
+		//	min+= mahonian(niv-1, p-j);
+		//}
+
+		int un = maho_suiv(niv-1, p-i);
+		int deux = maho_suiv(niv-1, p);
+
+		//cout << "i" << i << "  " << un << "  " << deux << endl;
+
+		min+=un-deux;
 
 		p-=i;
 		niv--;
