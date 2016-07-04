@@ -6,4 +6,4 @@ longuint chaines_max_bis();
 
 longuint chaines_max_ter();
 
-int chaines_max();
+int chaines_max();	

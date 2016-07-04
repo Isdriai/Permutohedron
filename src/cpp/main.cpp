@@ -7,9 +7,7 @@ using namespace std;
 
 int main(int argc, char const *argv[]){
 
-	
 	init_maho();
-
 
 	cout << chaines_max_bis() << endl ;
 

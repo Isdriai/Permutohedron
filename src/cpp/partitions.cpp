@@ -21,25 +21,21 @@ const int taille_gen = (int)pow(2.0,(double)(n-1));
 array<bitset<n>, taille_gen> generation(){
 
 	array<bitset<n>, taille_gen> solutions;
-
-	for (int i = 0; i < (2 << n-2 ) ; ++i)
+	for (int i = 0; i < (2 << (n-2) ) ; ++i)
 	{
 		solutions[i]=(bitset<n>(i*2+1));
 	}
-
 	return solutions;
 }
 
 // donne pour un mot binaire donné la distribution des elements dans la partition
 array<int,n> bijection (bitset<n> const & bij){
+	
 	array<int,n> tmp;
-
 	int cpt = 0 ;
 	int poche=0;
-
 	for (int i = n-1; i >= 0 ; i--)
 	{ 
-
 		if(bij[i]){
 			tmp[poche] = cpt+1;
 			poche++;
@@ -49,12 +45,10 @@ array<int,n> bijection (bitset<n> const & bij){
 			cpt++;
 		}
 	}
-
 	for (int i = poche ; i < n ; ++i)
 	{
 		tmp[i]=0;
 	}
-
 	return tmp;
 }
 
@@ -63,13 +57,11 @@ array<array<int,n>, taille_gen> gen_comp_n (){
 
 	array<array<int,n>, taille_gen> res ;
 	int cpt = 0 ;
-
 	for (bitset<n> & bij : generation())
 	{
 		res[cpt]=bijection(bij);
 		cpt++;
 	}
-
 	return res;
 }
 
@@ -119,10 +111,8 @@ int maximum(array<int,N> v){
 
 void gen_partitions
 (vector<Partition> &partitions, array<int,n> generateur,int gen, vector<int> possibles, Partition acc, int fait){
-
 	if(generateur.at(gen) == 1 ){
 		if(gen != (n-1 ) && generateur.at(gen+1) != 0){
-
 			// 1::_
 			for (int i = 0 ; i < possibles.size() ; i++ )
 			{
@@ -132,19 +122,14 @@ void gen_partitions
 				}
 
 				vector<int> poss_tmp = possibles;
-
 				Partition acc_tmp = acc;
 				acc_tmp.suite[fait] = possibles[i];
 				acc_tmp.barres[fait] = true;
 				poss_tmp.erase(poss_tmp.begin() + i);
-
 				gen_partitions(partitions, generateur , gen+1 , poss_tmp, acc_tmp, fait+1);
-		}
-			
-			
+			}
 		}
 		else { 	
-
 			// 1::[]
 			for (int i : possibles)
 			{
@@ -164,7 +149,6 @@ void gen_partitions
 		// a::_
 		for (int i = 0; i <= possibles.size()-(generateur[gen]); ++i)
 		{
-
 			if (fait != 0 && !acc.barres[fait-1] && possibles[i] < acc.suite[fait-1])
 			{
 				continue;
@@ -174,12 +158,9 @@ void gen_partitions
 				vector<int> poss_tmp = possibles;
 				Partition acc_tmp = acc;
 				array<int,n> gen_tmp = generateur;
-
 				gen_tmp[gen]--;
 				acc_tmp.suite[fait] = possibles[i];
-
 				poss_tmp.erase(poss_tmp.begin() + i);
-
 				gen_partitions(partitions, gen_tmp, gen, poss_tmp, acc_tmp, fait+1);
 			}
 		}
@@ -188,12 +169,10 @@ void gen_partitions
 
 vector<int> init_possibles(){
 	vector<int> tmp(n);
-
 	for (int i = 1 ; i <= n; ++i)
 	{
 		tmp[i-1]=i;
 	}
-
 	return tmp;
 }
 
@@ -201,17 +180,12 @@ vector<int> init_possibles(){
 vector<Partition> get_partitions(){
 
 	array<array<int,n>, taille_gen> generateurs = gen_comp_n();
-
 	vector<int> possibles = init_possibles();
-
 	vector<Partition> partitions;
-	
 	 for (array<int,n> gen : generateurs)
 	 {
-		//array<int,n> gen {3,0,0};
 	 	Partition vide;
 	 	gen_partitions(partitions, gen, 0, possibles, vide, 0) ;
 	 }
-
 	return partitions;
 }

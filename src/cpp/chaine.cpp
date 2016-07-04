@@ -8,6 +8,9 @@
 
 using namespace std;
 
+typedef array<int,n> Code;
+typedef array<int,n> Permut;
+
 typedef __uint128_t longuint;
 
 // There is no overload for << for __uint128_t
@@ -38,7 +41,7 @@ std::ostream& operator<<( std::ostream& dest, longuint value )
 
 struct Noeud{
 	longuint chemin;
-	array<int,n> elem;
+	Permut elem;
 };
 
 struct hash_vecteur{
@@ -61,33 +64,26 @@ struct hash_vecteur{
 };
 
 int somme (int e){
-
 	if(!e)
 		return 1;
 
 	int tmp = 0 ;
-
 	for(int i = e; i > 0 ; i-- ){
 		tmp+= i;
 	}
-
 	return tmp;
 }
 
-array<int,n> premier(int etage){
+Permut premier(int etage){
 
 	array<int,n> premier;
-
 	for (int i = 0; i < n; ++i)
 	{
 		premier[i] = 0;
 	}
-
 	int reste = etage-1; // l'etage 1 a 0 permutation
-
 	for (int i = 1; i < n; ++i)
 	{
-
 		if(reste > i){
 			premier[n-i-1]=i;
 			reste-=i;
@@ -97,107 +93,49 @@ array<int,n> premier(int etage){
 			break;
 		}
 	}
-
 	return permut_to_lehmer(premier);
-}
-
-bool egale(array<int,n> const & a, array<int,n> const & b){
-	for(int i = 0 ; i < n ; i++){
-		if(a[i] != b[i]){
-			return false;
-		}
-	}
-
-	return true;
-}
-
-void affiche_elem(array<int,n> v){
-	for (int i : v)
-	{
-		cout << i << " ";
-	}
-	cout << endl;
-}
-
-void affiche_etage(vector<Noeud> const & etage){
-
-	cout << " nouvel etage " << endl ;
-
-	for (Noeud n : etage)
-	{
-		affiche_elem(n.elem);
-		cout << " nbr de chemin " << n.chemin << endl ;
-	}
-
-	cout << endl << endl ;
 }
 
 vector<Noeud> list_etage(int etage){
 	vector<Noeud> niveau;
-
 	Noeud first;
-
 	first.elem = premier(etage);
-
 	first.chemin=0;
-
 	niveau.push_back(first);
-
 	int maho = mahonian(n,etage-1);
-
-	//cout << "maho " << maho  << "   etage-1 " << etage-1 << endl ;
 
 	for(int i = 0 ; i < maho-1 ; i++){
 
 		first.elem= next(first.elem);
 		niveau.push_back(first);
-		
 	}
-
 	return niveau;
 }
 
 vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
 
-	//affiche_etage(etage_fils);
-
 	vector<Noeud> niveau = list_etage(eta-1); 
-
 	for (Noeud const & noeud : etage_fils)
 	{
 		vector<array<int,n>> parents = prec(noeud.elem);
-
 		for (array<int,n> const & pre : parents)
 		{
-
 			niveau[ranka(pre)].chemin+=noeud.chemin;
-			// for (Noeud & precedent : niveau)
-			// {
-			// 	if(egale(precedent.elem,pre)){
-			// 		precedent.chemin+= noeud.chemin;
-			// 		break;
-			// 	}
-			// }
 		}
 	}
-
 	return niveau;
 }
 
-unordered_map<array<int,n>, longuint, hash_vecteur> etage_ter 
- (unordered_map<array<int,n>, longuint, hash_vecteur> const & etage_fils, int eta){
+unordered_map<Permut, longuint, hash_vecteur> etage_ter 
+ (unordered_map<Permut, longuint, hash_vecteur> const & etage_fils, int eta){
 
-	unordered_map<array<int,n>, longuint, hash_vecteur> nouveau;
-
+	unordered_map<Permut, longuint, hash_vecteur> nouveau;
 	for (auto const & permut : etage_fils)
 	{
-
-		vector<array<int,n>> parents = prec(permut.first);
-
-		for (array<int,n> const & pre : parents)
+		vector<Permut> parents = prec(permut.first);
+		for (Permut const & pre : parents)
 		{
 			auto it = nouveau.find (pre);
-
 			if(it != nouveau.end()){
 				longuint tmp = nouveau[pre];
 				it->second  = tmp + permut.second; // euh c'est pas la qu'il y a un pb avec les longuint ? 
@@ -214,54 +152,27 @@ longuint chaines_max_bis(){
 
 	vector<Noeud> premier_etage;
 	Noeud id;
-
-	int etage_actuel = (n*(n-1)/2)+1 ;
-
+	int etage_actuel = taille;
 	id.elem = premier(etage_actuel);
 	id.chemin = 1;
-
 	premier_etage.push_back(id);
 
 	while(etage_actuel != 1){
-
 		premier_etage = etage(premier_etage, etage_actuel);
-
 		etage_actuel--;
 	}
-
-
 	return premier_etage[0].chemin;
 }
 
 longuint chaines_max_ter(){
 
-	unordered_map<array<int,n>, longuint, hash_vecteur> premier_etage;
-
+	unordered_map<Permut, longuint, hash_vecteur> premier_etage;
 	int etage_actuel = (n*(n-1)/2)+1 ;
-
-	array<int,n> elem = premier(etage_actuel);
-
+	Permut elem = premier(etage_actuel);
 	premier_etage[elem]=1;
 
 	while(etage_actuel != 1){
-
 		premier_etage = etage_ter(premier_etage, etage_actuel);
-
-		// cout << " affiche etage " << endl << endl ;
-
-		// cout << "elem " << endl ;
-
-		// for(auto kv : premier_etage) {
-  //   		for (int i : kv.first)
-  //   		{
-  //   			cout << i ;
-  //   		}
-
-  //   		cout << endl ;
-
-  //   		cout << "chemin " <<  kv.second << endl ; 
-  //   	}
-
 		etage_actuel--;
 	}
 
@@ -276,31 +187,23 @@ longuint chaines_max_ter(){
 int ch (array<int,n> const & elem){
 
 	vector<array<int,n>> possibles = succ(elem);
-
 	int nbr_suiv = possibles.size();
-
 	if(nbr_suiv == 0){
 		return 0;
 	}
-
 	int rajoute=nbr_suiv-1;
-
 	for(array<int,n> suiv : possibles){
 		rajoute += ch(suiv);
 	}
-
 	return rajoute;
 }
 
 int chaines_max(){
-	std::array<int,n> premier_elem;
-
+	array<int,n> premier_elem;
 	int cpt=0;
-
 	for(int i=1 ; i <= n ; i++){
 		premier_elem[cpt]=i;
 		cpt++;
 	}
-
 	return 1+ch(premier_elem);
 }

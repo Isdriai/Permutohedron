@@ -8,6 +8,9 @@
 
 using namespace std;
 
+typedef array<int,n> Code;
+typedef array<int,n> Permut;
+
 struct Case{
 	int lig;
 	int co;
@@ -25,9 +28,7 @@ struct hash_Case{
 };
 
 int fact (int x){
-
 	int tmp = 1 ;
-
 	for (int i = x ; i > 1; --i)
 	{
 		tmp*= i;
@@ -48,9 +49,8 @@ bool inf (int a, int b){
 	return a < b;
 }
 
-const int taille = n*(n-1)/2 + 1;
+
 array<array<Maho, taille>, n> sav_maho;
-//vector<vector<Maho>> sav_maho;
 /*
 	Mahonian fonction
 
@@ -90,7 +90,6 @@ int mahonian(int ligne, int col){
 }
 
 void init_maho(){
-
 	for (int i = 0 ; i < n ; ++i)
 	{
 		int s_suiv = fact(i+1);
@@ -126,54 +125,17 @@ void init_maho(){
 	}
 }
 
-/*
-void init_maho(){
-	for(int i = 0 ; i < n ; i++){
-		vector<Maho> etage (i*(i-1)/2 + 1);
-		int prec = 0;
-
-		for (int j = 0; j < n*(n-1)/2 + 1; ++j)
-		{
-			Maho emp;
-
-			if (i == 0)
-			{
-				emp.res=1;
-				emp.somme_prec=0;
-				etage[j]=emp;
-			}
-			else 
-			{	
-				int tmp = 0;
-				for (int k = 0; k <= min(i, j) ; ++k)
-				{
-					tmp+= sav_maho[i][j-k].res;
-				}
-				emp.res = tmp;
-				emp.somme_prec = prec;
-				etage[j]=emp;
-				prec += tmp;
-			}
-		}
-		sav_maho.push_back(etage);
-	}
-}
-*/
-
 int maho_suiv(int ligne, int col){
-	if (col >= n*(n+1)/2 + 1)
-	{
-		col = n*(n+1)/2;
-	}
+
 	return sav_maho[ligne-1][col].somme_suiv;
 }
 
-vector<array<int,n>> haut_bas (array<int,n> const & elem, bool (*compare)(int,int)){
+vector<Permut> haut_bas (Permut const & elem, bool (*compare)(int,int)){
 
-	std::vector<array<int,n>> res;
+	vector<Permut> res;
 
 	for(int i = 0 ; i < elem.size()-1 ; i++){
-		array<int,n> tampon = elem;
+		Permut tampon = elem;
 
 		if(compare(elem[i], elem[i+1])){
 			tampon[i]=elem[i+1];
@@ -181,22 +143,20 @@ vector<array<int,n>> haut_bas (array<int,n> const & elem, bool (*compare)(int,in
 			res.push_back(tampon);
 		}
 	}
-
 	return res;
 }
 
-vector<array<int,n>> succ (array<int,n> const & elem){
+vector<Permut> succ (Permut const & elem){
 	return haut_bas(elem,inf);
 }
 
-vector<array<int,n>> prec (array<int,n> const & elem){
+vector<Permut> prec (Permut const & elem){
 	return haut_bas(elem,sup);
 }
 
-array<int,n> lehmer_to_permut(array<int,n> const & elem){
+Code lehmer_to_permut(Permut const & elem){
 	array<int,n> tmp;
 	int cpt=0;
-
 	for (int i = 0 ; i < n ; i++)
 	{
 		int compte=0;
@@ -208,47 +168,54 @@ array<int,n> lehmer_to_permut(array<int,n> const & elem){
 				compte++;
 			}
 		}
-
 		tmp[cpt]=compte;
 		cpt++;
 	}
-
 	return tmp;
 }
 
-array<int,n> permut_to_lehmer(array<int,n> const & lehm){
-
-	vector<int> possibles;
-	for (int i = 1; i <= n ; i++)
+int ajustement(array<bool,n> & possibles, int index){
+	for (int i = 0; i < n ; ++i)
 	{
-		possibles.push_back(i);
+		if(index <= 0 && possibles[i]){
+			possibles[i]=false;
+			return i+1;
+		}
+		if(possibles[i])
+		{
+			index--;
+		}
 	}
+}
+
+Permut permut_to_lehmer(Code const & lehm){
+	array<bool,n> possibles;
+	for (int i = 0; i < n ; ++i)
+	{
+		possibles[i]= true;
+	}
+
 	array<int,n> traduction;
 	int cpt=0;
 	for (int i : lehm)
 	{
-		traduction[cpt]=possibles[i];
-		cpt++;
-		possibles.erase(possibles.begin() + i );
-	}
+		int ajust= ajustement(possibles, i);
 
+		traduction[cpt]=ajust;
+		cpt++;
+	}
 	return traduction;
 }
 
 // comportement incertain si l'élément n'a pas de suivant !
-array<int,n> next(array<int,n> const & elem){
+Permut next(Permut const & elem){
 
 	array<int,n> lehm = lehmer_to_permut(elem);
-
-
 	int ramassage=0;
 	int pivot=0;
-
 	for (int i = n-2; i > 0; i--)
 	{
-
 		if(lehm[i] > 0 && lehm[i-1] < n-i){
-
 			ramassage+= lehm[i]-1;
 			lehm[i]=0;
 			lehm[i-1]++;
@@ -256,12 +223,10 @@ array<int,n> next(array<int,n> const & elem){
 			break;
 		}
 		else{
-
 			ramassage+= lehm[i];
 			lehm[i]=0;
 		}
 	}
-
 	if (ramassage){
 		for (int i = n-2; i >= pivot; i--)
 		{
@@ -275,8 +240,6 @@ array<int,n> next(array<int,n> const & elem){
 			}
 		}
 	}
-
-
 	return permut_to_lehmer(lehm);
 }
 
@@ -286,38 +249,21 @@ int cpt(array<int,n> const & lehm){
 	{
 		tmp+=i;
 	}
-
 	return tmp;
 }
 
-int ranka(array<int,n> const & elem){
-	array<int,n> lehm = lehmer_to_permut(elem);
-
+int ranka(Permut const & elem){
+	Code lehm = lehmer_to_permut(elem);
 	int p = cpt(lehm);
 	int niv = n;
 	int min = 0;
-
 	for(int i : lehm){
-
-		//for (int j = 0 ; j < i ; j++ )
-		//{
-		//	min+= mahonian(niv-1, p-j);
-		//}
-
-		int un = maho_suiv(niv-1, p-i);
-		int deux = maho_suiv(niv-1, p);
-
-		//cout << "i" << i << "  " << un << "  " << deux << endl;
-
-		min+=un-deux;
-
+		min+=maho_suiv(niv-1, p-i)-maho_suiv(niv-1, p);
 		p-=i;
 		niv--;
-
 		if (!p){
 			return min;
 		}
 	}
-
 	return 0 ;
 }
