@@ -11,8 +11,8 @@ using namespace std;
 
 struct Partition
 {
-	array<int,n> suite {0};
-	array<bool,n-1> barres {false};
+  array<int,n> suite {{0}};
+  array<bool,n-1> barres {{false}};
 };
 
 const int taille_gen = (int)pow(2.0,(double)(n-1));
