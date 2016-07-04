@@ -18,11 +18,11 @@ struct hash_Case{
 };
 
 void affiche_maho();
-void affiche_maho_h(int max);
-int mahonian (int ligne, int col);
-int mahonian_h (int ligne, int col);
-vector<array<int,n>> succ (array<int,n> const & elem);
-vector<array<int,n>> prec (array<int,n> const & elem);
+int mahonian(int ligne, int col);
+void init_maho();
+int maho_suiv(int ligne, int col);
+vector<array<int,n>> succ(array<int,n> const & elem);
+vector<array<int,n>> prec(array<int,n> const & elem);
 array<int,n> lehmer_to_permut(array<int,n> const & elem);
 array<int,n> permut_to_lehmer(array<int,n> const & lehm);
 array<int,n> next(array<int,n> const & elem);
