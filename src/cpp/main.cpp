@@ -33,9 +33,11 @@ int main(int argc, char const *argv[]){
 
 	init_maho();
 
-	 vector<Partition> partitions = get_partitions();
+	 //vector<Partition> partitions = get_partitions();
 
-	 cout << partitions.size() << endl ;
+	 //cout << partitions.size() << endl ;
+
+	test_init_hash();
 
 	return 0;
 }

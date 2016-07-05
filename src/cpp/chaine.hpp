@@ -12,3 +12,7 @@ longuint chaines_max_bis();
 longuint chaines_max_ter();
 
 int chaines_max();	
+
+
+void test_init_hash();
+void test_init_array();

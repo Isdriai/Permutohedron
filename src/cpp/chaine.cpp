@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include "basique.hpp"
 #include <array>
+//#include "cycles.h"
+#include <sys/time.h>
 
 using namespace std;
 
@@ -241,3 +243,86 @@ int chaines_max(){
 	}
 	return 1+ch(premier_elem);
 }
+
+vector<Permut> gen_etage(int etage){
+	vector<Permut> niveau;
+	Permut first;
+	first = premier(etage);
+	niveau.push_back(first);
+	int maho = mahonian(n,etage-1);
+
+	for(int i = 0 ; i < maho-1 ; i++){
+
+		first= next(first);
+		niveau.push_back(first);
+	}
+	return niveau;
+}
+
+void affiche(Permut const & p){
+	cout << " nouvelle permutation " << endl ;
+	for (int i : p)
+	{
+		cout << i << " " ;
+	}
+	cout << endl << endl << endl ;
+}
+
+void init_hash(){
+	unordered_map<Permut, longuint, hash_vecteur> nouveau;
+
+	cout << " taille " << mahonian(n,taille/2) << endl ;
+
+	for (Permut const & p : gen_etage(taille/2))
+	{
+		affiche(p);
+		nouveau[p]=0;
+	}
+}
+
+
+void init_array(){
+	int taille_vector = mahonian(n,taille/2);
+
+	cout << " taille " << taille_vector << endl ;
+
+	vector<Noeud> nouveau(taille_vector);
+
+	for (int i = 0; i < taille_vector; ++i)
+	{
+		//cout << " i " << i << endl ;
+		Permut el = unrank(taille_vector,i);
+		affiche(el);
+		nouveau[i].elem=el;
+		nouveau[i].chemin=0;
+	}
+}
+
+void test_init(void (*fonction_init) ()){
+	struct timeval tbegin,tend;
+	 double texec=0.;
+	 gettimeofday(&tbegin,NULL);
+	 
+	 for (int i = 0; i < 100; ++i)
+	 {
+	 	fonction_init();
+	 }
+	 
+	 // End timer
+	 gettimeofday(&tend,NULL);             // get the current calendar time
+	 
+	 // Compute execution time
+	 texec=((double)(1000*(tend.tv_sec-tbegin.tv_sec)+((tend.tv_usec-tbegin.tv_usec)/1000)))/1000.;
+
+	 std::cout << "Execution time : " << texec << endl ;
+}
+
+void test_init_hash(){
+	test_init(init_hash);
+}
+
+
+void test_init_array(){
+	test_init(init_array);
+}
+
