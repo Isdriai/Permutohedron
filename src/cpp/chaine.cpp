@@ -47,20 +47,26 @@ struct Noeud{
 struct hash_vecteur{
 	size_t operator()(const array<int,n> &x) const{
  		
-  		 size_t tmp = 0;
+  	// 	 size_t tmp = 0;
 
- 		 for (int i = 0 ; i < x.size() ; i++)
- 		 {
- 		 	tmp += std::hash<int>()(x[i])*(i+1);
- 		 }
- 		 return tmp;
+ 		//   for (int i = 0 ; i < x.size() ; i++)
+ 		//   {
+ 		//   	tmp += std::hash<int>()(x[i])*(i+1);
+ 		//   }
+ 		//   return tmp;
+ 		// }
 
- 		// std::size_t seed = x.size();
-  	// 	for(auto& i : x) {
-   //  		seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
- 		//  }
-  	// 	return seed;
-	}
+ //  	 std::size_t seed = x.size();
+ //    	for(auto& i : x) {
+ //     		seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+ //  	  }
+ //    	return seed;
+ // }
+			std::size_t seed = ranka(x);
+     	
+     	return seed;
+  }
+
 };
 
 int somme (int e){
@@ -112,7 +118,7 @@ vector<Noeud> list_etage(int etage){
 	return niveau;
 }
 
-vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
+/*vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
 
 	vector<Noeud> niveau = list_etage(eta-1); 
 	for (Noeud const & noeud : etage_fils)
@@ -120,9 +126,25 @@ vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
 		vector<array<int,n>> parents = prec(noeud.elem);
 		for (array<int,n> const & pre : parents)
 		{
-			niveau[ranka(pre)].chemin+=noeud.chemin;
+			niveau[ranka(pre)].chemin+=noeud.chemin; // a tester copier permutation
 		}
 	}
+	return niveau;
+}*/
+
+vector<longuint> etage(vector<longuint> const & etage_fils, int eta){
+
+	vector<longuint> niveau(mahonian(n,eta-2));
+
+	for (int i = 0; i < mahonian(n,eta-1); ++i)
+	{
+		vector<Permut> parents = prec(unrank(eta-1, i));
+		for (Permut const & pre : parents)
+		{
+			niveau[ranka(pre)]+=etage_fils[i];
+		}
+	}
+
 	return niveau;
 }
 
@@ -138,7 +160,7 @@ unordered_map<Permut, longuint, hash_vecteur> etage_ter
 			auto it = nouveau.find (pre);
 			if(it != nouveau.end()){
 				longuint tmp = nouveau[pre];
-				it->second  = tmp + permut.second; // euh c'est pas la qu'il y a un pb avec les longuint ? 
+				it->second  = tmp + permut.second; 
 			}
 			else{
 				nouveau[pre]=permut.second;
@@ -148,7 +170,7 @@ unordered_map<Permut, longuint, hash_vecteur> etage_ter
 	return nouveau;
 }
 
-longuint chaines_max_bis(){
+/*longuint chaines_max_bis(){
 
 	vector<Noeud> premier_etage;
 	Noeud id;
@@ -162,10 +184,22 @@ longuint chaines_max_bis(){
 		etage_actuel--;
 	}
 	return premier_etage[0].chemin;
+}*/
+
+longuint chaines_max_bis(){
+
+	vector<longuint> premier_etage(1);
+	int etage_actuel = taille;
+	premier_etage[0]=1;
+
+	while(etage_actuel != 1){
+		premier_etage = etage(premier_etage, etage_actuel);
+		etage_actuel--;
+	}
+	return premier_etage[0];
 }
 
 longuint chaines_max_ter(){
-
 	unordered_map<Permut, longuint, hash_vecteur> premier_etage;
 	int etage_actuel = (n*(n-1)/2)+1 ;
 	Permut elem = premier(etage_actuel);

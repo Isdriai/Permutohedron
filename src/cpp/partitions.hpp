@@ -12,3 +12,6 @@ struct Partition
 
 
 vector<Partition> get_partitions();
+void gen_partitions
+(vector<Partition> &partitions, array<int,n> generateur,int gen, array<bool,n> possibles, Partition acc, int fait);
+//int get_partitions();

@@ -1,3 +1,8 @@
+#include <iostream> 
+
+using namespace std;
+
+
 typedef __uint128_t longuint;
 
 std::ostream& operator<<( std::ostream& dest, longuint value );

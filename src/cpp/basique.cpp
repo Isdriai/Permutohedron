@@ -267,3 +267,21 @@ int ranka(Permut const & elem){
 	}
 	return 0 ;
 }
+
+Permut unrank(int etage, int indice){
+	Code lehm;
+
+	for (int i = 0; i < n; i++)
+	{
+		int decalage = 0;
+		while(indice >= mahonian(n-i, etage-decalage)){
+			indice-= mahonian(n-i, etage-decalage);
+			decalage++;
+		}
+		lehm[i-1]=decalage;
+		etage-=decalage;
+	}
+	lehm[n-1] = 0;
+
+	return permut_to_lehmer(lehm);
+}

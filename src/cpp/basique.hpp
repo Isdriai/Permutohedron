@@ -28,3 +28,4 @@ Code lehmer_to_permut(Permut const & elem);
 Permut permut_to_lehmer(Code const & lehm);
 Permut next(Permut const & elem);
 int ranka(Permut const & elem);
+Permut unrank(int etage, int indice);

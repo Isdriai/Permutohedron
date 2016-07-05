@@ -15,7 +15,7 @@ struct Partition
   array<bool,n-1> barres {{false}};
 };
 
-const int taille_gen = (int)pow(2.0,(double)(n-1));
+constexpr int taille_gen = (int)pow(2.0,(double)(n-1));
 
 // genere les mots binaires allant de 0 à 2^(n-1)
 array<bitset<n>, taille_gen> generation(){
@@ -65,18 +65,6 @@ array<array<int,n>, taille_gen> gen_comp_n (){
 	return res;
 }
 
-template<size_t N>
-int maximum(array<int,N> v){
-	int tmp=0;
-	for (int i : v)
-	{
-		if(i>tmp){
-			tmp=i;
-		}
-	}
-	return tmp;
-}
-
 /*
 
 	algo en pseudo code ML avec des elements de c++ ( boucles for à la c++ ) =
@@ -91,7 +79,7 @@ int maximum(array<int,N> v){
 					if i > derniers
 						res := (i::acc)::!res
 	
-	| 1 :: _ -> for ( int i : possilbes )
+	| 1 :: _ -> for ( int i : possibles )
 					if i > derniers
 						enum corps (possibles/i) (Separateur::i::acc)
 	
@@ -109,37 +97,55 @@ int maximum(array<int,N> v){
 	PS = n est le nbr d'éléments ds la partition
 */
 
+int ajust(array<bool,n> const & possibles, int index){
+	for (int i = 0; i < n ; ++i)
+	{
+		if(index <= 0 && possibles[i]){
+			return i;
+		}
+		if(possibles[i])
+		{
+			index--;
+		}
+	}
+}
+
+int nbr_partitions=0;
+
 void gen_partitions
-(vector<Partition> &partitions, array<int,n> generateur,int gen, vector<int> possibles, Partition acc, int fait){
+(vector<Partition> &partitions, array<int,n> generateur,int gen, array<bool,n> possibles, Partition acc, int fait){
 	if(generateur.at(gen) == 1 ){
-		if(gen != (n-1 ) && generateur.at(gen+1) != 0){
+		if(gen != (n-1) && generateur.at(gen+1) != 0){
 			// 1::_
-			for (int i = 0 ; i < possibles.size() ; i++ )
+			for (int i = 0 ; i < n-fait ; i++ )
 			{
-				if (fait != 0 && !acc.barres[fait-1] && possibles[i] < acc.suite[fait-1])
+				int indice = ajust(possibles, i);
+
+				if (fait != 0 && !acc.barres[fait-1] && indice < acc.suite[fait-1])
 				{
 					continue;
 				}
 
-				vector<int> poss_tmp = possibles;
+				array<bool,n> poss_tmp = possibles;
 				Partition acc_tmp = acc;
-				acc_tmp.suite[fait] = possibles[i];
+				acc_tmp.suite[fait] = indice+1;
 				acc_tmp.barres[fait] = true;
-				poss_tmp.erase(poss_tmp.begin() + i);
+				poss_tmp[indice]=false;
 				gen_partitions(partitions, generateur , gen+1 , poss_tmp, acc_tmp, fait+1);
 			}
 		}
 		else { 	
 			// 1::[]
-			for (int i : possibles)
+			for (int i = 0 ; i < n-fait ; i++)
 			{
-				if (fait != 0 && !acc.barres[fait-1] && i < acc.suite[fait-1])
+				int indice = ajust(possibles, i);
+				if (fait != 0 && !acc.barres[fait-1] && indice < acc.suite[fait-1])
 				{
 					continue;
 				}
 
 				Partition acc_tmp = acc;
-				acc_tmp.suite[fait] = i;
+				acc_tmp.suite[fait] = indice+1;
 				partitions.push_back(acc_tmp);
 				
 			}
@@ -147,20 +153,21 @@ void gen_partitions
 	}
 	else{ 	
 		// a::_
-		for (int i = 0; i <= possibles.size()-(generateur[gen]); ++i)
+		for (int i = 0; i <= (n-fait)-(generateur[gen]); ++i)
 		{
-			if (fait != 0 && !acc.barres[fait-1] && possibles[i] < acc.suite[fait-1])
+			int indice = ajust(possibles, i);
+			if (fait != 0 && !acc.barres[fait-1] && indice < acc.suite[fait-1])
 			{
 				continue;
 			}
 			else{
 
-				vector<int> poss_tmp = possibles;
+				array<bool,n> poss_tmp = possibles;
 				Partition acc_tmp = acc;
 				array<int,n> gen_tmp = generateur;
 				gen_tmp[gen]--;
-				acc_tmp.suite[fait] = possibles[i];
-				poss_tmp.erase(poss_tmp.begin() + i);
+				acc_tmp.suite[fait] = indice+1;
+				poss_tmp[indice]=false;
 				gen_partitions(partitions, gen_tmp, gen, poss_tmp, acc_tmp, fait+1);
 			}
 		}
@@ -178,9 +185,13 @@ vector<int> init_possibles(){
 
 //donne toutes les partitions possibles pour n 
 vector<Partition> get_partitions(){
-
+//int get_partitions(){
 	array<array<int,n>, taille_gen> generateurs = gen_comp_n();
-	vector<int> possibles = init_possibles();
+	array<bool,n> possibles;
+	for (int i = 0; i < n; ++i)
+	{
+		possibles[i]=true;
+	}
 	vector<Partition> partitions;
 	 for (array<int,n> gen : generateurs)
 	 {
@@ -188,4 +199,5 @@ vector<Partition> get_partitions(){
 	 	gen_partitions(partitions, gen, 0, possibles, vide, 0) ;
 	 }
 	return partitions;
+	//return nbr_partitions;
 }
