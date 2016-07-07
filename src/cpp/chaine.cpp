@@ -7,8 +7,7 @@
 #include <array>
 #include <sys/time.h>
 #include <cilk/cilk.h>
-#include <stdint.h>
-
+#include <gmpxx.h>
 using namespace std;
 
 typedef array<int,n> Code;
@@ -126,11 +125,13 @@ vector<Noeud> list_etage(int etage){
 
 
 
-vector<longuint> etage(vector<longuint> const & etage_fils, int eta){
+vector<mpz_class> etage(vector<mpz_class> const & etage_fils, int eta){
 
-	vector<longuint> niveau(mahonian(n,eta-2));
+	int taille_vect = mahonian(n,eta-2);
+	vector<mpz_class> niveau(taille_vect);
 	int limite = mahonian(n, eta-1);
 
+	/* ecriture concurrente !
 	cilk_for (int i = 0; i < limite; ++i)
 	{
 		vector<Permut> parents = prec(unrank(eta-1, i));
@@ -139,6 +140,17 @@ vector<longuint> etage(vector<longuint> const & etage_fils, int eta){
 			niveau[ranka(pre)]+=etage_fils[i];
 		}
 	}
+	*/
+
+	// lecture concurrente seulement -> ca marche 
+	cilk_for (int i=0; i < taille_vect; i++){
+		vector<Permut> fils = succ(unrank(eta-2, i));
+		for (Permut const & su : fils)
+		{
+			niveau[i]+=etage_fils[ranka(su)];
+		}
+	}
+
 	return niveau;
 }
 
@@ -180,9 +192,9 @@ unordered_map<Permut, longuint, hash_vecteur> etage_ter
 	return premier_etage[0].chemin;
 }*/
 
-longuint chaines_max_bis(){
+mpz_class chaines_max_bis(){
 
-	vector<longuint> premier_etage(1);
+	vector<mpz_class> premier_etage(1);
 	int etage_actuel = taille;
 	premier_etage[0]=1;
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "chaine.hpp"
 #include "partitions.hpp"
+#include <cilk/cilk_api.h>
 
 using namespace std;
 
@@ -37,17 +38,32 @@ void affichep(Permut const & p){
 	cout << endl << endl << endl ;
 }
 
+void show_usage(string name)
+{
+  cerr << "Usage: " << name << " [-n <proc_number>] " << endl;
+}
+
 int main(int argc, char const *argv[]){
 
 	init_maho();
 
-	 //vector<Partition> partitions = get_partitions();
+	string nproc = "0";
 
-	 //cout << partitions.size() << endl ;
+ 	if (argc != 1 and argc != 3) { show_usage(argv[0]); return 1; }
+ 	if (argc == 3)
+    {
+     	 if (string(argv[1]) != "-n")  { show_usage(argv[0]); return 1; }
+      nproc = argv[2];
+    }
 
-		//test_init_hash();
-	  //test_init_array();
-		cout << chaines_max_bis() << endl ;
+	if (__cilkrts_set_param("nworkers", nproc.c_str() ) != __CILKRTS_SET_PARAM_SUCCESS)
+   		 cerr << "Failed to set the number of Cilk workers" << endl;
+
+  	cout << " cpu utilisés " << __cilkrts_get_nworkers() << endl;
+
+
+	mpz_class res = chaines_max_bis();
+		 cout << res << endl ;
 	
 
 	return 0;
