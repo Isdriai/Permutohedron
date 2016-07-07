@@ -124,6 +124,8 @@ vector<Noeud> list_etage(int etage){
 	return niveau;
 }*/
 
+
+
 vector<longuint> etage(vector<longuint> const & etage_fils, int eta){
 
 	vector<longuint> niveau(mahonian(n,eta-2));
