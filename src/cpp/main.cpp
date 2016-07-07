@@ -47,7 +47,7 @@ int main(int argc, char const *argv[]){
 
 	init_maho();
 
-	/*
+	
 	string nproc = "0";
 
  	if (argc != 1 and argc != 3) { show_usage(argv[0]); return 1; }
@@ -65,9 +65,9 @@ int main(int argc, char const *argv[]){
 
 	mpz_class res = chaines_max_bis();
 		 cout << res << endl ;
-	*/
+	
 
-	cout << mahonian(n, (n*(n-1)/2 +1)/2) << endl ;
+	//cout << mahonian(n, (n*(n-1)/2 +1)/2) << endl ;
 
 	return 0;
 }
