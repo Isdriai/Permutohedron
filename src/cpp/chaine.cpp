@@ -5,8 +5,9 @@
 #include <unordered_map>
 #include "basique.hpp"
 #include <array>
-//#include "cycles.h"
 #include <sys/time.h>
+#include <cilk/cilk.h>
+#include <stdint.h>
 
 using namespace std;
 
@@ -49,26 +50,15 @@ struct Noeud{
 struct hash_vecteur{
 	size_t operator()(const array<int,n> &x) const{
  		
-  	// 	 size_t tmp = 0;
-
- 		//   for (int i = 0 ; i < x.size() ; i++)
- 		//   {
- 		//   	tmp += std::hash<int>()(x[i])*(i+1);
- 		//   }
- 		//   return tmp;
- 		// }
-
  //  	 std::size_t seed = x.size();
  //    	for(auto& i : x) {
  //     		seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
  //  	  }
  //    	return seed;
  // }
-			std::size_t seed = ranka(x);
-     	
+		std::size_t seed = ranka(x);
      	return seed;
   }
-
 };
 
 int somme (int e){
@@ -137,8 +127,9 @@ vector<Noeud> list_etage(int etage){
 vector<longuint> etage(vector<longuint> const & etage_fils, int eta){
 
 	vector<longuint> niveau(mahonian(n,eta-2));
+	int limite = mahonian(n, eta-1);
 
-	for (int i = 0; i < mahonian(n,eta-1); ++i)
+	cilk_for (int i = 0; i < limite; ++i)
 	{
 		vector<Permut> parents = prec(unrank(eta-1, i));
 		for (Permut const & pre : parents)
@@ -146,7 +137,6 @@ vector<longuint> etage(vector<longuint> const & etage_fils, int eta){
 			niveau[ranka(pre)]+=etage_fils[i];
 		}
 	}
-
 	return niveau;
 }
 
@@ -268,33 +258,47 @@ void affiche(Permut const & p){
 	cout << endl << endl << endl ;
 }
 
+unordered_map<Permut, longuint, hash_vecteur> etage_precedent;
+
 void init_hash(){
+	//unordered_map<Permut, longuint, hash_vecteur> nouveau;
+
+	//for (Permut const & p : gen_etage(taille/2+1))
+	//{
+	//	nouveau[p]=0;
+	//}
+
 	unordered_map<Permut, longuint, hash_vecteur> nouveau;
-
-	cout << " taille " << mahonian(n,taille/2) << endl ;
-
-	for (Permut const & p : gen_etage(taille/2))
+	for (auto const & permut : etage_precedent)
 	{
-		affiche(p);
-		nouveau[p]=0;
+		vector<Permut> parents = prec(permut.first);
+		for (Permut const & pre : parents)
+		{
+			auto it = nouveau.find (pre);
+			if(it != nouveau.end()){
+				longuint tmp = nouveau[pre];
+				it->second  = tmp + permut.second; 
+			}
+			else{
+				nouveau[pre]=permut.second;
+			}
+		}
 	}
 }
 
 
 void init_array(){
-	int taille_vector = mahonian(n,taille/2);
 
-	cout << " taille " << taille_vector << endl ;
+	vector<longuint> niveau(mahonian(n,taille/2));
+	int limite = mahonian(n, taille/2+1);
 
-	vector<Noeud> nouveau(taille_vector);
-
-	for (int i = 0; i < taille_vector; ++i)
+	for (int i = 0; i < limite; ++i)
 	{
-		//cout << " i " << i << endl ;
-		Permut el = unrank(taille_vector,i);
-		affiche(el);
-		nouveau[i].elem=el;
-		nouveau[i].chemin=0;
+		vector<Permut> parents = prec(unrank(taille/2+1, i));
+		for (Permut const & pre : parents)
+		{
+			niveau[ranka(pre)]+=0;
+		}
 	}
 }
 
@@ -305,19 +309,26 @@ void test_init(void (*fonction_init) ()){
 	 
 	 for (int i = 0; i < 100; ++i)
 	 {
+	 	cout << " i : " << i << endl ;
 	 	fonction_init();
 	 }
 	 
-	 // End timer
-	 gettimeofday(&tend,NULL);             // get the current calendar time
-	 
-	 // Compute execution time
+	 gettimeofday(&tend,NULL);             
 	 texec=((double)(1000*(tend.tv_sec-tbegin.tv_sec)+((tend.tv_usec-tbegin.tv_usec)/1000)))/1000.;
 
-	 std::cout << "Execution time : " << texec << endl ;
+	 std::cout << "temps d'execution : " << texec << endl ;
 }
 
 void test_init_hash(){
+
+	int limite = mahonian(n, taille/2+1);
+	for (int i = 0; i < limite ; ++i)
+	{
+		etage_precedent[unrank(taille/2+1, i)]=0;
+	}
+
+	cout << " limite " << limite << endl ;
+
 	test_init(init_hash);
 }
 

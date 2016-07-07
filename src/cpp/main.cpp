@@ -28,6 +28,14 @@ void affiche_array(array<int,n> const & tab){
 	cout << endl ;
 }
 
+void affichep(Permut const & p){
+	cout << " nouvelle permutation " << endl ;
+	for (int i : p)
+	{
+		cout << i << " " ;
+	}
+	cout << endl << endl << endl ;
+}
 
 int main(int argc, char const *argv[]){
 
@@ -37,7 +45,10 @@ int main(int argc, char const *argv[]){
 
 	 //cout << partitions.size() << endl ;
 
-	test_init_hash();
+		//test_init_hash();
+	  //test_init_array();
+		cout << chaines_max_bis() << endl ;
+	
 
 	return 0;
 }

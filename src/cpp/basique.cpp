@@ -6,6 +6,7 @@
 #include "const.hpp"
 #include <array>
 
+
 using namespace std;
 
 typedef array<int,n> Code;
