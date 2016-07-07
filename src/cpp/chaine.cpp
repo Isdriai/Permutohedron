@@ -151,11 +151,6 @@ vector<mpz_class> etage(vector<mpz_class> const & etage_fils, int eta){
 		}
 	}
 
-	if (taille_vect == (n*(n-1)/2 +1)/2)
-	{
-		cout << "nbr de cases " << taille_vect << "     taille globale " << sizeof(niveau) << endl ;
-	}
-
 	return niveau;
 }
 
