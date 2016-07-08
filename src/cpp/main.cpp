@@ -63,11 +63,29 @@ int main(int argc, char const *argv[]){
   	cout << " cpu utilisés " << __cilkrts_get_nworkers() << endl;
 
 
-	mpz_class res = chaines_max_bis();
-		 cout << res << endl ;
+	//mpz_class res = chaines_max_bis();
+	//	 cout << res << endl ;
 	
+	
+  	vector<Partition> partitions = get_partitions();
 
-	//cout << mahonian(n, (n*(n-1)/2 +1)/2) << endl ;
+  	int i = 0;
+  	for (Partition p : partitions)
+  	{
+  		cout << "partition n°" << i << " et selon rank =   "  << ranka(p) << endl ;
+  		i++;
+  		affiche_partition(p);
+  		cout << endl ;
+  	}
 
+  	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
+  	
+  	/*
+  	Partition test;
+  	test.suite  = {1,4,5,2,3,6};
+  	test.barres = {0,0,1,1,0};
+
+  	cout << ranka(test) << endl ;
+  	*/
 	return 0;
 }

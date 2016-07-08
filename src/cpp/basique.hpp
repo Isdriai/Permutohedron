@@ -18,6 +18,7 @@ struct hash_Case{
   }
 };
 
+int fact(int x);
 void affiche_maho();
 int mahonian(int ligne, int col);
 void init_maho();

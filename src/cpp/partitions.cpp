@@ -65,6 +65,30 @@ array<array<int,n>, taille_gen> gen_comp_n (){
 	return res;
 }
 
+void affiche_tab(array<int,n> v){
+ 	for (int i : v )
+ 	{
+ 		cout << i << " " ;
+ 	}
+ 
+ 	cout << endl ;
+ }
+
+void affiche_b(array<bool,n-1> tab){
+	for (bool b : tab)
+ 	{
+		cout << b << " ";
+ 	}
+
+	cout << endl;
+}
+
+void affiche_partition(Partition p){
+	cout << " suite " << endl ;
+	affiche_tab(p.suite);
+	cout << " barres " << endl ;
+	affiche_b(p.barres);
+ }
 /*
 
 	algo en pseudo code ML avec des elements de c++ ( boucles for à la c++ ) =
@@ -186,7 +210,8 @@ vector<int> init_possibles(){
 //donne toutes les partitions possibles pour n 
 vector<Partition> get_partitions(){
 //int get_partitions(){
-	array<array<int,n>, taille_gen> generateurs = gen_comp_n();
+	//array<array<int,n>, taille_gen> generateurs = gen_comp_n();
+	array<array<int,n>, taille_gen> generateurs = {{2,2,2,0,0}};
 	array<bool,n> possibles;
 	for (int i = 0; i < n; ++i)
 	{
@@ -200,4 +225,139 @@ vector<Partition> get_partitions(){
 	 }
 	return partitions;
 	//return nbr_partitions;
+}
+
+
+/* faire un tableau dont l'index est le mot booleen et 
+l'element de la case est le multimoniaux ( n , forme issue du mot booleen)
+
+exemple pr n = 4
+
+le mot booleen 1,0,1 = 5 donc dans la 5eme case il y aura
+
+4! / ( 1! 2! 1!)
+
+ca va servir pour faire le unrank
+*/
+
+array<int,taille_gen> sav_multimoniaux;
+
+int multimoniaux(int m, array<int,n> k){
+	int div = 1 ;
+
+	for(int el : k){
+		div*=fact(el);
+	}
+
+	return fact(m)/div;
+}
+
+void init_multimoniaux(){
+	array<bitset<n>,taille_gen> mots_binaires = generation();
+
+	for ( int i = 0 ; i < taille_gen ; i++)
+	{
+		array<int,n> mot = bijection(mots_binaires[i]);
+
+		sav_multimoniaux[i] = multimoniaux(n,mot);
+	}
+}
+
+array<int,n> repartition_to_binaire(array<bool,n-1> barres){
+
+	array<int,n> res;
+	for (int i = 0; i < n; ++i)
+	{
+		res[i]=0;
+	}
+	int nbr_poche=0;
+	int poche=0;
+
+	for (int i = 0; i < n-1; ++i)
+	{
+		if (barres[i])
+		{
+			res[poche]=nbr_poche+1;
+			poche++;
+			nbr_poche=0;
+		}
+		else{
+			nbr_poche++;
+		}
+	}
+
+	res[poche]=nbr_poche+1;
+
+	return res;
+}
+
+int nbr_plus_petits(int j, array<bool,n> const & possibles){
+	int res=0;
+	for (int i = 0 ; i < n ; i++)
+	{
+		if( possibles[i] && i+1 < j ){
+			res++;
+		}
+	}
+	return res;
+}
+
+int ranka(Partition const & p){
+ 	int niv = n;
+ 	int min = 0;
+ 	array<bool,n> possibles;
+ 	for (int i = 0; i < n; ++i)
+ 	{
+ 		possibles[i]=true;
+ 	}
+ 	array<int,n> forme = repartition_to_binaire(p.barres);
+
+ 	for(int j : p.suite ){
+
+ 		cout << " j " << j << endl << endl ;
+
+ 		cout << "possibles " << endl ;
+ 		for (int i = 0; i < n; ++i)
+ 		{
+ 			if(possibles[i]){
+ 				cout << i+1 << " " ;
+ 			}
+ 		}
+ 		cout << endl << endl ;
+
+ 		cout << "formes " << endl ;
+ 		for (int i = 0; i < n; ++i)
+ 		{
+ 			cout << forme[i] << " ";
+ 		}
+ 		cout << endl << endl ;
+
+ 		cout << " min " << min << endl ;
+
+
+ 		int coeff = nbr_plus_petits(j,possibles);
+ 		if (coeff)
+ 		{
+ 			int multi = multimoniaux(niv-1, forme);
+	 		min+=coeff*multi;
+
+	 		cout << " multi " << multi << " coeff " << coeff << endl ;
+ 		}
+ 		else{
+ 			min+=1;
+ 		}
+ 		possibles[j-1]=false;
+ 		niv--;
+
+ 		for (int i = 0; i < n; ++i)
+ 		{
+ 			if(forme[i]){
+ 				forme[i]--;
+ 				break;
+ 			}
+ 		}
+ 		cout << endl << endl ;
+ 	}
+
+ 	return min-1;
 }
