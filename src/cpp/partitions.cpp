@@ -211,7 +211,7 @@ vector<int> init_possibles(){
 vector<Partition> get_partitions(){
 //int get_partitions(){
 	//array<array<int,n>, taille_gen> generateurs = gen_comp_n();
-	array<array<int,n>, taille_gen> generateurs = {{2,2,2,0,0}};
+	array<array<int,n>, taille_gen> generateurs = {{3,1,2,0,}};
 	array<bool,n> possibles;
 	for (int i = 0; i < n; ++i)
 	{
@@ -242,14 +242,14 @@ ca va servir pour faire le unrank
 
 array<int,taille_gen> sav_multimoniaux;
 
-int multimoniaux(int m, array<int,n> k){
+int multimoniaux(int fm, array<int,n> k){
 	int div = 1 ;
 
 	for(int el : k){
 		div*=fact(el);
 	}
 
-	return fact(m)/div;
+	return fm/div;
 }
 
 void init_multimoniaux(){
@@ -259,7 +259,7 @@ void init_multimoniaux(){
 	{
 		array<int,n> mot = bijection(mots_binaires[i]);
 
-		sav_multimoniaux[i] = multimoniaux(n,mot);
+		sav_multimoniaux[i] = multimoniaux(fact(n),mot);
 	}
 }
 
@@ -291,15 +291,56 @@ array<int,n> repartition_to_binaire(array<bool,n-1> barres){
 	return res;
 }
 
-int nbr_plus_petits(int j, array<bool,n> const & possibles){
+
+// un nombre est considéré comme possible quand il est plus grand que les éléments qui sont deja dans la part 
+// et qui est plus petit que l'élément actuel
+int nbr_possibles(int actuel, array<bool,n> const & possibles, Partition const & p, int indice){
+	int min=0;
+
+	try {
+		if(!p.barres.at(n-indice-1)){
+			min = p.suite.at(n-indice-1);
+		}
+	}
+	catch(exception e){}
+
 	int res=0;
-	for (int i = 0 ; i < n ; i++)
+	for (int i = 0; i < n; ++i)
 	{
-		if( possibles[i] && i+1 < j ){
+		if(possibles[i] && (i+1) > min && (i+1) < actuel){
+			cout << i+1 << "  est possible " << endl ;
 			res++;
 		}
 	}
 	return res;
+}
+
+bool fin_part(array<int,n> const & forme, int reste){
+	for (int i = n-1 ; i >= 0 ; i--)
+	{
+		reste-=forme[i];
+		if (reste == 0 && forme[i] == 1){
+			if (forme[i-1] && i-1 >= 0)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+	return false;// theoriquement on ne fait jamais ce return
+}
+
+void enleve(array<int,n> & forme){
+	for (int i = 0; i < n; ++i)
+ 		{
+ 			if(forme[i]){
+ 				forme[i]--;
+ 				break;
+ 			}
+ 		}
 }
 
 int ranka(Partition const & p){
@@ -313,51 +354,36 @@ int ranka(Partition const & p){
  	array<int,n> forme = repartition_to_binaire(p.barres);
 
  	for(int j : p.suite ){
+ 		
+ 		int poss = nbr_possibles(j, possibles, p, niv);
 
- 		cout << " j " << j << endl << endl ;
-
- 		cout << "possibles " << endl ;
- 		for (int i = 0; i < n; ++i)
- 		{
- 			if(possibles[i]){
- 				cout << i+1 << " " ;
- 			}
- 		}
- 		cout << endl << endl ;
-
- 		cout << "formes " << endl ;
- 		for (int i = 0; i < n; ++i)
- 		{
- 			cout << forme[i] << " ";
- 		}
- 		cout << endl << endl ;
-
- 		cout << " min " << min << endl ;
-
-
- 		int coeff = nbr_plus_petits(j,possibles);
- 		if (coeff)
- 		{
- 			int multi = multimoniaux(niv-1, forme);
-	 		min+=coeff*multi;
-
-	 		cout << " multi " << multi << " coeff " << coeff << endl ;
+ 		if(fin_part(forme, niv)){
+ 			enleve(forme);
+ 			int multi = multimoniaux(fact(niv-1),forme);
+ 			min+=poss*multi;
  		}
  		else{
- 			min+=1;
+	 		enleve(forme);
+
+		 	for (int i = 0; i < poss; ++i)
+		 	{
+		 		int num = fact(niv-2)*(niv-1-poss+i);
+		 		int multi = multimoniaux(num, forme);
+		 		min+=multi;
+		 		cout << " num " << num << endl ;
+		 	}
  		}
+ 		cout << "forme" << endl;
+ 		for (int i : forme)
+ 		{
+ 			cout << i << " "  ;
+ 		}
+ 		cout << endl ;
+ 		cout << " j " << j << " min " << min << endl ;
  		possibles[j-1]=false;
  		niv--;
 
- 		for (int i = 0; i < n; ++i)
- 		{
- 			if(forme[i]){
- 				forme[i]--;
- 				break;
- 			}
- 		}
- 		cout << endl << endl ;
  	}
 
- 	return min-1;
+ 	return min;
 }

@@ -72,9 +72,10 @@ int main(int argc, char const *argv[]){
   	int i = 0;
   	for (Partition p : partitions)
   	{
-  		cout << "partition n°" << i << " et selon rank =   "  << ranka(p) << endl ;
-  		i++;
+  		cout << "partition n°" << i << " et selon rank =   "  << ranka(p) << endl;
   		affiche_partition(p);
+  		cout << endl << endl << endl << endl;
+  		i++;
   		cout << endl ;
   	}
 

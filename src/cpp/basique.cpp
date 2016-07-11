@@ -29,6 +29,9 @@ struct hash_Case{
 };
 
 int fact (int x){
+	if(x <= 0)
+		return 1;
+	
 	int tmp = 1 ;
 	for (int i = x ; i > 1; --i)
 	{
