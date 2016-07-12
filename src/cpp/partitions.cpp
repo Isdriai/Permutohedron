@@ -343,6 +343,53 @@ void enleve(array<int,n> & forme){
  		}
 }
 
+int possibles_superieurs(array<bool,n> const & possibles, int val, Partition const & p, int endroit){
+	int fin_part=false;
+	int res=0;
+	int espace_fin=0;
+
+	int i=endroit;
+	while (!fin_part)
+	{
+		if (p.barres[i])
+		{
+			fin_part=true;
+		}
+		else{
+			espace_fin++;
+		}
+		i++;
+		if (i==n)
+		{
+			break;
+		}
+	}
+
+	for (int i = endroit; i <= n-espace_fin; ++i)
+	{
+		if (possibles[i] && i+1 > val)
+		{
+			res++;
+		}
+	}
+	return res;
+}
+
+array<int,n> les_possibles(int actuel, array<bool,n> const & possibles, Partition const & p, int indice){
+	array<int,n> res;
+	for (int i = 0; i < n; ++i)
+	{
+		if (possibles[i] && i+1 < actuel)
+		{
+			res[i]=i+1;
+		}
+		else{
+			res[i]=0;
+		}
+	}
+	return res;
+}
+
 int ranka(Partition const & p){
  	int niv = n;
  	int min = 0;
@@ -355,22 +402,24 @@ int ranka(Partition const & p){
 
  	for(int j : p.suite ){
  		
- 		int poss = nbr_possibles(j, possibles, p, niv);
-
  		if(fin_part(forme, niv)){
  			enleve(forme);
  			int multi = multimoniaux(fact(niv-1),forme);
- 			min+=poss*multi;
+ 			min+=nbr_possibles(j, possibles, p, niv)*multi;
  		}
  		else{
 	 		enleve(forme);
 
-		 	for (int i = 0; i < poss; ++i)
+		 	for (int i : les_possibles(j, possibles, p, niv))
 		 	{
-		 		int num = fact(niv-2)*(niv-1-poss+i);
-		 		int multi = multimoniaux(num, forme);
-		 		min+=multi;
-		 		cout << " num " << num << endl ;
+		 		if (i != 0)
+		 		{
+			 		int sup=possibles_superieurs(possibles, i, p, n-niv);
+			 		int num = fact(niv-2)*sup;
+			 		int multi = multimoniaux(num, forme);
+			 		min+=multi;
+			 		cout << "pour i : " << i << "  num " << num << "niv : " << niv << " sup : " << sup << endl ;
+		 		}
 		 	}
  		}
  		cout << "forme" << endl;
