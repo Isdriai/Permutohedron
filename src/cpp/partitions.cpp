@@ -12,7 +12,7 @@ using namespace std;
 struct Partition
 {
   array<int,n> suite {{0}};
-  array<bool,n-1> barres {{false}};
+  array<bool,n-1> barres {{false}}; // a modifier en bitset
 };
 
 constexpr int taille_gen = (int)pow(2.0,(double)(n-1));
@@ -88,6 +88,14 @@ void affiche_partition(Partition p){
 	affiche_tab(p.suite);
 	cout << " barres " << endl ;
 	affiche_b(p.barres);
+ }
+
+ Partition separer(Partition const & p){
+
+ }
+
+ Partition fusioner(Partition const & p){
+ 	
  }
 /*
 
@@ -227,19 +235,6 @@ vector<Partition> get_partitions(){
 	//return nbr_partitions;
 }
 
-
-/* faire un tableau dont l'index est le mot booleen et 
-l'element de la case est le multimoniaux ( n , forme issue du mot booleen)
-
-exemple pr n = 4
-
-le mot booleen 1,0,1 = 5 donc dans la 5eme case il y aura
-
-4! / ( 1! 2! 1!)
-
-ca va servir pour faire le unrank
-*/
-
 array<int,taille_gen> sav_multimoniaux;
 
 int multimoniaux(int fm, array<int,n> k){
@@ -291,24 +286,6 @@ array<int,n> repartition_to_binaire(array<bool,n-1> barres){
 	return res;
 }
 
-bool fin_part(array<int,n> const & forme, int reste){
-	for (int i = n-1 ; i >= 0 ; i--)
-	{
-		reste-=forme[i];
-		if (reste == 0 && forme[i] == 1){
-			if (forme[i-1] && i-1 >= 0)
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
-	}
-	return false;// theoriquement on ne fait jamais ce return
-}
-
 void enleve(array<int,n> & forme){
 	for (int i = 0; i < n; ++i)
  		{
@@ -339,7 +316,7 @@ array<int,n> les_possibles(int actuel, array<bool,n> const & possibles, Partitio
 			res[i]=0;
 		}
 	}
-return res;
+	return res;
 }
 
 int binomial(int n, int k){
@@ -349,6 +326,18 @@ int binomial(int n, int k){
 		return 1;
 	}
 	return res;
+}
+
+int stirling_seconde(int n, int k){
+	if(k>n){
+		return 0;
+	}
+	else if(k==n || k==1){
+		return 1;
+	}
+	else{
+		return stirling_seconde(n-1, k-1) + k*stirling_seconde(n-1, k);
+	}
 }
 
 int plus_grand(array<bool,n> const & possibles, int actuel){
@@ -362,9 +351,32 @@ int plus_grand(array<bool,n> const & possibles, int actuel){
 	return res;
 }
 
+int puissance(int x, int p){
+	int res=1;
+	for (int i = 0; i < p ; ++i)
+	{
+		res*=x;
+	}
+	return res;
+}
+
+int rank_tas(array<bool,n> const & barres){
+	int res=0;
+	for (int i = 0; i < n-1; ++i)
+	{
+		res+=puissance(2, n-1-i)*barres[i];
+	}
+	return res;
+}
+
 int ranka(Partition const & p){
  	int niv = n;
  	int min = 0;
+ 	int num_tas = rank_tas(p.barres);
+ 	for (int i = 0; i < num_tas; ++i)
+ 	{
+ 		min+=stirling_seconde(compte_bit_a_1(i), n);
+ 	}
  	array<bool,n> possibles;
  	for (int i = 0; i < n; ++i)
  	{
@@ -388,11 +400,15 @@ int ranka(Partition const & p){
 		 		post_forme[num_forme]--;
 		 		int div = multimoniaux(fact(niv-1-nbr_forme), post_forme);
 		 		min+=binome*div;
- 			}
- 				
+ 			}		
  		}
  		possibles[j-1]=false;
  		niv--;
  	}
  	return min;
+}
+
+// il me faut quelque chose de plus fin que les nbrs de stirling
+Partition unrank(int rang){
+
 }
