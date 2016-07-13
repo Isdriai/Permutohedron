@@ -85,14 +85,5 @@ int main(int argc, char const *argv[]){
 
   	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
 
-  	/*
-  	Partition test;
-  	test.suite  = {1,4,5,2,3,6};
-  	test.barres = {0,0,1,1,0};
-
-  	cout << ranka(test) << endl ;
-  	*/
-
-  	//affiche_partition(unrank(28));
 	return 0;
 }

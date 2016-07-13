@@ -454,32 +454,17 @@ array<bool,n-1> transfo(bitset<n-1> const & barres){
 }
 
 void urk(Partition &res, array<int,n> forme, array<int,n> post_forme, array<bool,n> & possibles, int rang, int num_forme, int min, int niv){
-	/*cout << "forme " << endl ;
-	affiche_tab(forme);
-	cout << " post_forme " << endl;
-	affiche_tab(post_forme);
-	cout << " possibles " << endl;
-	affiche_b(possibles);
-	cout << " rang " << rang << endl ;
-	cout << " num_forme " << num_forme << endl ;
-	cout << " min " << min << endl;
-	cout << "niv " << niv << endl ;
-	cout << endl << endl << endl;
-*/
-
 	for (int i = min; i < n; ++i)
 	{
 		if (possibles[i])
 		{
 			int nbr=binomial(plus_grand(possibles, i+1), forme[num_forme])*multimoniaux(niv-1-forme[num_forme], post_forme);
-			//cout << " pr i : " << i+1 << "  nbr : " << nbr << endl ;
 			if (rang>=nbr && nbr!=0)
 			{
 				rang-=nbr;
 			}
 			else{
 				res.suite[n-niv]=i+1;
-				//cout << " i choisi " << i+1 << endl;
 				possibles[i]=false;
 				min=i+1;
 				if(forme[num_forme]==0){
@@ -521,18 +506,10 @@ Partition unrank(int rang){
 	{
 		possibles[i]=i+1;
 	}
- 	//cout << " rang " << rang << endl ;
 	int min=0;
 	int num_forme=0;
 	array<int,n>post_forme=tronc(forme, num_forme);
 	forme[num_forme]--;
-
-	/*cout << "forme " << endl ;
-	affiche_tab(forme);
-	cout << " post_forme " << endl;
-	affiche_tab(post_forme);
-	cout << " possibles " << endl;
-	affiche_b(possibles);*/
 
 	urk(res, forme, post_forme, possibles, rang, 0, 0, n);
 
