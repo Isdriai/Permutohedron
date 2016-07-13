@@ -132,7 +132,8 @@ void affiche_tab(array<int,n> v){
  	cout << endl ;
  }
 
-void affiche_b(array<bool,n-1> tab){
+template<size_t N>
+void affiche_b(array<bool,N> tab){
 	for (bool b : tab)
  	{
 		cout << b << " ";
@@ -443,7 +444,97 @@ int ranka(Partition const & p){
  	return min;
 }
 
+array<bool,n-1> transfo(bitset<n-1> const & barres){
+	array<bool,n-1> res;
+	for (int i = 0; i < n-1; ++i)
+	{
+		res[i]=barres[n-2-i];
+	}
+	return res;
+}
+
+void urk(Partition &res, array<int,n> forme, array<int,n> post_forme, array<bool,n> & possibles, int rang, int num_forme, int min, int niv){
+	/*cout << "forme " << endl ;
+	affiche_tab(forme);
+	cout << " post_forme " << endl;
+	affiche_tab(post_forme);
+	cout << " possibles " << endl;
+	affiche_b(possibles);
+	cout << " rang " << rang << endl ;
+	cout << " num_forme " << num_forme << endl ;
+	cout << " min " << min << endl;
+	cout << "niv " << niv << endl ;
+	cout << endl << endl << endl;
+*/
+
+	for (int i = min; i < n; ++i)
+	{
+		if (possibles[i])
+		{
+			int nbr=binomial(plus_grand(possibles, i+1), forme[num_forme])*multimoniaux(niv-1-forme[num_forme], post_forme);
+			//cout << " pr i : " << i+1 << "  nbr : " << nbr << endl ;
+			if (rang>=nbr && nbr!=0)
+			{
+				rang-=nbr;
+			}
+			else{
+				res.suite[n-niv]=i+1;
+				//cout << " i choisi " << i+1 << endl;
+				possibles[i]=false;
+				min=i+1;
+				if(forme[num_forme]==0){
+					min=0;
+					num_forme++;
+					post_forme=tronc(forme, num_forme);
+				}
+				forme[num_forme]--;
+				urk(res, forme, post_forme, possibles, rang, num_forme, min, niv-1);
+				break;
+			}
+		}
+	}
+}
+
 // il me faut quelque chose de plus fin que les nbrs de stirling
 Partition unrank(int rang){
 
+	// génération de la forme
+
+	Partition res;
+	int multi=0;
+	int i=0;
+	array<int,n> forme;
+	bitset<n-1> barres_tmp;
+	while(multi <= rang){
+		rang-=multi;
+		barres_tmp=bitset<n-1> (i);
+		forme=repartition_to_binaire(transfo(barres_tmp));
+		multi=multimoniaux(n, forme);
+		i++;
+	}
+	res.barres=transfo(barres_tmp);
+
+	// génération de la suite
+
+	array<bool,n> possibles;
+	for (int i = 0; i < n; ++i)
+	{
+		possibles[i]=i+1;
+	}
+ 	//cout << " rang " << rang << endl ;
+	int min=0;
+	int num_forme=0;
+	array<int,n>post_forme=tronc(forme, num_forme);
+	forme[num_forme]--;
+
+	/*cout << "forme " << endl ;
+	affiche_tab(forme);
+	cout << " post_forme " << endl;
+	affiche_tab(post_forme);
+	cout << " possibles " << endl;
+	affiche_b(possibles);*/
+
+	urk(res, forme, post_forme, possibles, rang, 0, 0, n);
+
+	return res;
 }

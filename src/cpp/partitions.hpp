@@ -17,3 +17,4 @@ void gen_partitions
 //int get_partitions();
 void init_multimoniaux();
 int ranka(Partition const & p);
+Partition unrank(int rang);

@@ -66,6 +66,7 @@ int main(int argc, char const *argv[]){
 	//mpz_class res = chaines_max_bis();
 	//	 cout << res << endl ;
 	
+
 	
   	vector<Partition> partitions = get_partitions();
 
@@ -74,13 +75,16 @@ int main(int argc, char const *argv[]){
   	{
   		cout << "partition n°" << i << " et selon rank =   "  << ranka(p) << endl;
   		affiche_partition(p);
+  		cout << "et unrank dit " << endl ;
+  		affiche_partition(unrank(i)); 
+  		cout << endl;
   		cout << endl << endl << endl << endl;
   		i++;
   		cout << endl ;
   	}
 
   	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
-  	
+
   	/*
   	Partition test;
   	test.suite  = {1,4,5,2,3,6};
@@ -88,5 +92,7 @@ int main(int argc, char const *argv[]){
 
   	cout << ranka(test) << endl ;
   	*/
+
+  	//affiche_partition(unrank(28));
 	return 0;
 }
