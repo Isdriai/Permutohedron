@@ -29,6 +29,8 @@ array<bitset<n>, taille_gen> generation(){
 }
 
 // donne pour un mot binaire donné la distribution des elements dans la partition
+// il faudra faire quelque chose, il y a 3 fois la meme fonction
+// il faut changer l'attribut barres en bitset dans la structure partition
 array<int,n> bijection (bitset<n> const & bij){
 	
 	array<int,n> tmp;
@@ -50,6 +52,62 @@ array<int,n> bijection (bitset<n> const & bij){
 		tmp[i]=0;
 	}
 	return tmp;
+}
+
+array<int,n> repartition_to_binaire(array<bool,n-1> barres){
+
+	array<int,n> res;
+	for (int i = 0; i < n; ++i)
+	{
+		res[i]=0;
+	}
+	int nbr_poche=0;
+	int poche=0;
+
+	for (int i = 0; i < n-1; ++i)
+	{
+		if (barres[i])
+		{
+			res[poche]=nbr_poche+1;
+			poche++;
+			nbr_poche=0;
+		}
+		else{
+			nbr_poche++;
+		}
+	}
+
+	res[poche]=nbr_poche+1;
+
+	return res;
+}
+
+array<int,n> repartition_to_binaire_bitset(bitset<n-1> barres){
+
+	array<int,n> res;
+	for (int i = 0; i < n; ++i)
+	{
+		res[i]=0;
+	}
+	int nbr_poche=0;
+	int poche=0;
+
+	for (int i = 0; i < n-1; ++i)
+	{
+		if (barres[i])
+		{
+			res[poche]=nbr_poche+1;
+			poche++;
+			nbr_poche=0;
+		}
+		else{
+			nbr_poche++;
+		}
+	}
+
+	res[poche]=nbr_poche+1;
+
+	return res;
 }
 
 // genere toutes les repartitions possibles des elements
@@ -218,8 +276,8 @@ vector<int> init_possibles(){
 //donne toutes les partitions possibles pour n 
 vector<Partition> get_partitions(){
 //int get_partitions(){
-	//array<array<int,n>, taille_gen> generateurs = gen_comp_n();
-	array<array<int,n>, taille_gen> generateurs = {{2,2,0,0,}};
+	array<array<int,n>, taille_gen> generateurs = gen_comp_n();
+	//array<array<int,n>, taille_gen> generateurs = {{5,2,0,0,0,0,0}};
 	array<bool,n> possibles;
 	for (int i = 0; i < n; ++i)
 	{
@@ -237,14 +295,14 @@ vector<Partition> get_partitions(){
 
 array<int,taille_gen> sav_multimoniaux;
 
-int multimoniaux(int fm, array<int,n> k){
+int multimoniaux(int m, array<int,n> k){
 	int div = 1 ;
 
 	for(int el : k){
 		div*=fact(el);
 	}
 
-	return fm/div;
+	return fact(m)/div;
 }
 
 void init_multimoniaux(){
@@ -254,36 +312,8 @@ void init_multimoniaux(){
 	{
 		array<int,n> mot = bijection(mots_binaires[i]);
 
-		sav_multimoniaux[i] = multimoniaux(fact(n),mot);
+		sav_multimoniaux[i] = multimoniaux(n,mot);
 	}
-}
-
-array<int,n> repartition_to_binaire(array<bool,n-1> barres){
-
-	array<int,n> res;
-	for (int i = 0; i < n; ++i)
-	{
-		res[i]=0;
-	}
-	int nbr_poche=0;
-	int poche=0;
-
-	for (int i = 0; i < n-1; ++i)
-	{
-		if (barres[i])
-		{
-			res[poche]=nbr_poche+1;
-			poche++;
-			nbr_poche=0;
-		}
-		else{
-			nbr_poche++;
-		}
-	}
-
-	res[poche]=nbr_poche+1;
-
-	return res;
 }
 
 void enleve(array<int,n> & forme){
@@ -328,18 +358,6 @@ int binomial(int n, int k){
 	return res;
 }
 
-int stirling_seconde(int n, int k){
-	if(k>n){
-		return 0;
-	}
-	else if(k==n || k==1){
-		return 1;
-	}
-	else{
-		return stirling_seconde(n-1, k-1) + k*stirling_seconde(n-1, k);
-	}
-}
-
 int plus_grand(array<bool,n> const & possibles, int actuel){
 	int res=0;
 	for (int i = 0; i < n; ++i)
@@ -360,22 +378,39 @@ int puissance(int x, int p){
 	return res;
 }
 
-int rank_tas(array<bool,n> const & barres){
+int rank_tas(array<bool,n-1> const & barres){
 	int res=0;
 	for (int i = 0; i < n-1; ++i)
 	{
-		res+=puissance(2, n-1-i)*barres[i];
+		res+=puissance(2, n-2-i)*barres[i];
 	}
 	return res;
 }
 
+array<int,n> tronc (array<int,n> const & forme, int endroit){
+	auto res = forme;
+	res[endroit]=0;
+	return res;
+}
+
+/* pr chaque element j, on regarde les éléments encore possibles qui sont plus petits,
+ pr chacun d'eux (i), on compte le nombre d'éléments plus grands qu'eux encore possibles
+ et on regarde cb de place reste t-il dans la part actuel et on fait 
+ le coef binomial * coef multimonial des autres parts
+ ex : 1 2 3 6 7 | 4 5
+ quand on arrive au 6, les plus petits possibles sont 4 et 5
+ pr 4 par exemple, ca ferait binomial(3, 1) * (2!/2!) car il reste une place dans la part et 
+ qu'il y a 5,6,7 qui sont plus grands que lui
+ pr ce qui est de la deuxieme partie c'est le coef multimonial du reste
+*/
 int ranka(Partition const & p){
  	int niv = n;
  	int min = 0;
  	int num_tas = rank_tas(p.barres);
  	for (int i = 0; i < num_tas; ++i)
  	{
- 		min+=stirling_seconde(compte_bit_a_1(i), n);
+ 		array<int,n> forme_tmp = repartition_to_binaire_bitset(bitset<n-1> (i));
+ 		min+=multimoniaux(n, forme_tmp);
  	}
  	array<bool,n> possibles;
  	for (int i = 0; i < n; ++i)
@@ -398,7 +433,7 @@ int ranka(Partition const & p){
 		 		int binome = binomial(plus_grand(possibles, i), nbr_forme);
 		 		array<int,n> post_forme=forme;
 		 		post_forme[num_forme]--;
-		 		int div = multimoniaux(fact(niv-1-nbr_forme), post_forme);
+		 		int div = multimoniaux(niv-1-nbr_forme, tronc(post_forme, num_forme));
 		 		min+=binome*div;
  			}		
  		}
