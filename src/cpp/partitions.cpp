@@ -31,7 +31,7 @@ array<bitset<n>, taille_gen> generation(){
 // donne pour un mot binaire donné la distribution des elements dans la partition
 // il faudra faire quelque chose, il y a 3 fois la meme fonction
 // il faut changer l'attribut barres en bitset dans la structure partition
-array<int,n> bijection (bitset<n> const & bij){
+array<int,n> bijection (bitset<n> const &bij){
 	
 	array<int,n> tmp;
 	int cpt = 0 ;
@@ -149,13 +149,119 @@ void affiche_partition(Partition p){
 	affiche_b(p.barres);
  }
 
- Partition separer(Partition const & p){
+void tri_rapide(array<int,n> &tableau, int debut, int fin)
+{
+    int gauche = debut-1;
+    int droite = fin+1;
+    const int pivot = tableau[debut];
 
+    if(debut >= fin)
+        return;
+
+    while(1)
+    {
+        do droite--; while(tableau[droite] > pivot);
+        do gauche++; while(tableau[gauche] < pivot);
+
+        if(gauche < droite){
+        	int tmp=tableau[gauche];
+        	tableau[gauche]=tableau[droite];
+        	tableau[droite]=tmp;
+        }
+        else break;
+    }
+
+    tri_rapide(tableau, debut, droite);
+    tri_rapide(tableau, droite+1, fin);
+}
+
+Partition separer(Partition const &p, int i){
+	if (p.barres[i])
+	{
+		throw "deja séparé";
+	}
+	Partition res=p;
+	res.barres[i]=1;
+	int parcourt=1;
+	int droite;
+	while(!res.barres[i+parcourt] && parcourt+i<n){
+		parcourt++;
+	}
+	droite=parcourt;
+	parcourt=1;
+	int gauche;
+	while(!res.barres[i-parcourt] && parcourt <= i){
+		parcourt++;
+	}
+	gauche=parcourt;
+
+	for (int j = gauche-1; j >= 0; --j)
+	{
+		for (int k = droite; k >= 1; --k)
+		{
+			if (res.suite[i-j] < res.suite[i+k])
+			{
+				int tmp = res.suite[i-j];
+				res.suite[i-j]=res.suite[i+k];
+				res.suite[i+k]=tmp;
+				break;
+			}
+		}
+	}
+	tri_rapide(res.suite, i-gauche+1, i);
+	tri_rapide(res.suite, i+1, i+droite);
+	return res;
+}
+
+Partition fusionner(Partition const &p, int i){
+	if (!p.barres[i])
+	{
+		throw "deja fusionné";
+	}
+	Partition res=p;
+ 	res.barres[i]=0;
+ 	int saut=0;
+ 	int premier=0;
+ 	int dernier=0;
+ 	while(!premier || !dernier){
+ 		try {
+ 			if (!premier && res.barres.at(i-saut-1))
+ 			{
+ 				premier = i-saut;
+ 			}
+ 		}
+ 		catch(exception e){
+ 			premier = 0;
+ 		}
+ 		try{
+ 			if (!dernier && res.barres.at(i+saut+1))
+ 			{
+ 				dernier = i+1+saut;
+ 			}
+ 		}
+ 		catch(exception e){
+ 			dernier=n-1;
+ 		}
+ 		saut++;
+ 	}
+ 	cout << "premier " << premier << " dernier " << dernier << endl ;
+ 	tri_rapide(res.suite, premier, dernier);
+ 	return res;
  }
 
- Partition fusioner(Partition const & p){
- 	
- }
+int ajust(array<bool,n> const &possibles, int index){
+	for (int i = 0; i < n ; ++i)
+	{
+		if(index <= 0 && possibles[i]){
+			return i;
+		}
+		if(possibles[i])
+		{
+			index--;
+		}
+	}
+}
+
 /*
 
 	algo en pseudo code ML avec des elements de c++ ( boucles for à la c++ ) =
@@ -187,22 +293,6 @@ void affiche_partition(Partition p){
 	
 	PS = n est le nbr d'éléments ds la partition
 */
-
-int ajust(array<bool,n> const & possibles, int index){
-	for (int i = 0; i < n ; ++i)
-	{
-		if(index <= 0 && possibles[i]){
-			return i;
-		}
-		if(possibles[i])
-		{
-			index--;
-		}
-	}
-}
-
-int nbr_partitions=0;
-
 void gen_partitions
 (vector<Partition> &partitions, array<int,n> generateur,int gen, array<bool,n> possibles, Partition acc, int fait){
 	if(generateur.at(gen) == 1 ){
@@ -317,7 +407,7 @@ void init_multimoniaux(){
 	}
 }
 
-void enleve(array<int,n> & forme){
+void enleve(array<int,n> &forme){
 	for (int i = 0; i < n; ++i)
  		{
  			if(forme[i]){
@@ -327,7 +417,7 @@ void enleve(array<int,n> & forme){
  		}
 }
 
-array<int,n> les_possibles(int actuel, array<bool,n> const & possibles, Partition const & p, int indice){
+array<int,n> les_possibles(int actuel, array<bool,n> const &possibles, Partition const &p, int indice){
 	int min=0;
 
 	try {
@@ -359,7 +449,7 @@ int binomial(int n, int k){
 	return res;
 }
 
-int plus_grand(array<bool,n> const & possibles, int actuel){
+int plus_grand(array<bool,n> const &possibles, int actuel){
 	int res=0;
 	for (int i = 0; i < n; ++i)
 	{
@@ -379,7 +469,7 @@ int puissance(int x, int p){
 	return res;
 }
 
-int rank_tas(array<bool,n-1> const & barres){
+int rank_tas(array<bool,n-1> const &barres){
 	int res=0;
 	for (int i = 0; i < n-1; ++i)
 	{
@@ -388,7 +478,7 @@ int rank_tas(array<bool,n-1> const & barres){
 	return res;
 }
 
-array<int,n> tronc (array<int,n> const & forme, int endroit){
+array<int,n> tronc (array<int,n> const &forme, int endroit){
 	auto res = forme;
 	res[endroit]=0;
 	return res;
@@ -404,7 +494,7 @@ array<int,n> tronc (array<int,n> const & forme, int endroit){
  qu'il y a 5,6,7 qui sont plus grands que lui
  pr ce qui est de la deuxieme partie c'est le coef multimonial du reste
 */
-int ranka(Partition const & p){
+int ranka(Partition const &p){
  	int niv = n;
  	int min = 0;
  	int num_tas = rank_tas(p.barres);
@@ -444,7 +534,7 @@ int ranka(Partition const & p){
  	return min;
 }
 
-array<bool,n-1> transfo(bitset<n-1> const & barres){
+array<bool,n-1> transfo(bitset<n-1> const &barres){
 	array<bool,n-1> res;
 	for (int i = 0; i < n-1; ++i)
 	{
@@ -453,7 +543,7 @@ array<bool,n-1> transfo(bitset<n-1> const & barres){
 	return res;
 }
 
-void urk(Partition &res, array<int,n> forme, array<int,n> post_forme, array<bool,n> & possibles, int rang, int num_forme, int min, int niv){
+void urk(Partition &res, array<int,n> forme, array<int,n> post_forme, array<bool,n> &possibles, int rang, int num_forme, int min, int niv){
 	for (int i = min; i < n; ++i)
 	{
 		if (possibles[i])
@@ -480,7 +570,6 @@ void urk(Partition &res, array<int,n> forme, array<int,n> post_forme, array<bool
 	}
 }
 
-// il me faut quelque chose de plus fin que les nbrs de stirling
 Partition unrank(int rang){
 
 	// génération de la forme

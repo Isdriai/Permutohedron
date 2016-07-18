@@ -20,10 +20,11 @@ void affiche_part(Partition const & p){
 	cout << endl;
 }
 
-void affiche_array(array<int,n> const & tab){
-	for (int i : tab)
+template <size_t N>
+void affiche_array(array<int,N> const & tab){
+	for (int i = 0; i < N; i++)
 	{
-		cout << i << " " ;
+		cout << tab[i] << " " ;
 	}
 
 	cout << endl ;
@@ -41,6 +42,34 @@ void affichep(Permut const & p){
 void show_usage(string name)
 {
   cerr << "Usage: " << name << " [-n <proc_number>] " << endl;
+}
+
+template <size_t N>
+bool egale(array<int,N> const & a, array<int,N> const & b){
+	for (int i = 0; i < N; ++i)
+	{
+		if (a[i]!=b[i])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+template <size_t N>
+bool egale(array<bool,N> const & a, array<bool,N> const & b){
+	for (int i = 0; i < N; ++i)
+	{
+		if (a[i]!=b[i])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool egale(Partition const & a, Partition const & b){
+	return egale(a.suite, b.suite) && egale(a.barres, b.barres);
 }
 
 int main(int argc, char const *argv[]){
@@ -67,23 +96,51 @@ int main(int argc, char const *argv[]){
 	//	 cout << res << endl ;
 	
 
-	
+	/*
   	vector<Partition> partitions = get_partitions();
 
   	int i = 0;
   	for (Partition p : partitions)
   	{
-  		cout << "partition n°" << i << " et selon rank =   "  << ranka(p) << endl;
-  		affiche_partition(p);
-  		cout << "et unrank dit " << endl ;
-  		affiche_partition(unrank(i)); 
-  		cout << endl;
-  		cout << endl << endl << endl << endl;
+  		cout << "partition n°" << i << endl;
+  		cout << " rank " ;
+  		if(i==ranka(p)){
+
+  			cout << "true "<< endl;
+  		}
+  		else{
+
+  			cout << "false" << endl;
+  		}
+
+  		cout << " unrank " ;
+  		if(egale(p,unrank(i))){
+  			cout << "true "<< endl;
+  		}
+  		else{
+  			cout << "false" << endl ;
+  		}
+
   		i++;
-  		cout << endl ;
   	}
 
   	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
+	*/
+  	
+	Partition test;
+	test.suite = {1,4,5,7,8,3,6,9,2,10};
+	for (bool &i : test.barres )
+	{
+		i=false;
+	}
+	test.barres[2]=true;
+	test.barres[4]=true;
+	test.barres[7]=true;
+	affiche_partition(test);
+	cout << endl << endl;
+	affiche_partition(fusionner(test,4));
+	cout << endl;
+	
 
 	return 0;
 }

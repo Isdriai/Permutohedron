@@ -18,3 +18,6 @@ void gen_partitions
 void init_multimoniaux();
 int ranka(Partition const & p);
 Partition unrank(int rang);
+Partition separer(Partition const & p, int i);
+Partition fusionner(Partition const & p, int i);
+void tri_rapide(array<int,n> & suite, int premier, int dernier);
