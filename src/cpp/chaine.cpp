@@ -109,39 +109,10 @@ vector<Noeud> list_etage(int etage){
 	return niveau;
 }
 
-/*vector<Noeud> etage(vector<Noeud> const & etage_fils, int eta){
-
-	vector<Noeud> niveau = list_etage(eta-1); 
-	for (Noeud const & noeud : etage_fils)
-	{
-		vector<array<int,n>> parents = prec(noeud.elem);
-		for (array<int,n> const & pre : parents)
-		{
-			niveau[ranka(pre)].chemin+=noeud.chemin; // a tester copier permutation
-		}
-	}
-	return niveau;
-}*/
-
-
-
 vector<mpz_class> etage(vector<mpz_class> const & etage_fils, int eta){
-
 	int taille_vect = mahonian(n,eta-2);
 	vector<mpz_class> niveau(taille_vect);
 	int limite = mahonian(n, eta-1);
-
-	/* ecriture concurrente !
-	cilk_for (int i = 0; i < limite; ++i)
-	{
-		vector<Permut> parents = prec(unrank(eta-1, i));
-		for (Permut const & pre : parents)
-		{
-			niveau[ranka(pre)]+=etage_fils[i];
-		}
-	}
-	*/
-
 	// lecture concurrente seulement -> ca marche 
 	cilk_for (int i=0; i < taille_vect; i++){
 		vector<Permut> fils = succ(unrank(eta-2, i));
@@ -150,7 +121,6 @@ vector<mpz_class> etage(vector<mpz_class> const & etage_fils, int eta){
 			niveau[i]+=etage_fils[ranka(su)];
 		}
 	}
-
 	return niveau;
 }
 

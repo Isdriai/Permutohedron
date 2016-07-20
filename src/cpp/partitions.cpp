@@ -143,11 +143,19 @@ void affiche_b(array<bool,N> tab){
 }
 
 void affiche_partition(Partition p){
-	cout << " suite " << endl ;
-	affiche_tab(p.suite);
-	cout << " barres " << endl ;
-	affiche_b(p.barres);
- }
+	// cout << " suite " << endl ;
+	// affiche_tab(p.suite);
+	// cout << " barres " << endl ;
+	// affiche_b(p.barres);
+	for (int i = 0; i < n; ++i)
+	{
+		cout << p.suite[i] << " ";
+		if (i < n-1 && p.barres[i])
+		{
+			cout << "| " ;
+		}
+	}
+}
 
 void tri_rapide(array<int,n> &tableau, int debut, int fin)
 {
@@ -178,23 +186,18 @@ void tri_rapide(array<int,n> &tableau, int debut, int fin)
 Partition separer(Partition const &p, int i){
 	if (p.barres[i])
 	{
-		throw "deja séparé";
+		return p;
 	}
 	Partition res=p;
 	res.barres[i]=1;
-	int parcourt=1;
-	int droite;
-	while(!res.barres[i+parcourt] && parcourt+i<n){
-		parcourt++;
+	int droite=1;
+	while(!res.barres[i+droite] && droite+i<n-1){
+		droite++;
 	}
-	droite=parcourt;
-	parcourt=1;
-	int gauche;
-	while(!res.barres[i-parcourt] && parcourt <= i){
-		parcourt++;
+	int gauche=1;
+	while(!res.barres[i-gauche] && gauche <= i){
+		gauche++;
 	}
-	gauche=parcourt;
-
 	for (int j = gauche-1; j >= 0; --j)
 	{
 		for (int k = droite; k >= 1; --k)
@@ -214,40 +217,14 @@ Partition separer(Partition const &p, int i){
 }
 
 Partition fusionner(Partition const &p, int i){
-	if (!p.barres[i])
+	if (!p.barres[i] || p.suite[i] >= p.suite[i+1])
 	{
-		throw "deja fusionné";
+		return p;
 	}
 	Partition res=p;
  	res.barres[i]=0;
- 	int saut=0;
- 	int premier=0;
- 	int dernier=0;
- 	while(!premier || !dernier){
- 		try {
- 			if (!premier && res.barres.at(i-saut-1))
- 			{
- 				premier = i-saut;
- 			}
- 		}
- 		catch(exception e){
- 			premier = 0;
- 		}
- 		try{
- 			if (!dernier && res.barres.at(i+saut+1))
- 			{
- 				dernier = i+1+saut;
- 			}
- 		}
- 		catch(exception e){
- 			dernier=n-1;
- 		}
- 		saut++;
- 	}
- 	cout << "premier " << premier << " dernier " << dernier << endl ;
- 	tri_rapide(res.suite, premier, dernier);
  	return res;
- }
+}
 
 int ajust(array<bool,n> const &possibles, int index){
 	for (int i = 0; i < n ; ++i)
@@ -267,7 +244,6 @@ int ajust(array<bool,n> const &possibles, int index){
 	algo en pseudo code ML avec des elements de c++ ( boucles for à la c++ ) =
 	
 	res = ref []
-	
 	
 	enum ((_, corps) as gen) possibles ((dernier,_)as acc)=
 	
@@ -375,13 +351,12 @@ vector<Partition> get_partitions(){
 		possibles[i]=true;
 	}
 	vector<Partition> partitions;
-	 for (array<int,n> gen : generateurs)
+	for (array<int,n> gen : generateurs)
 	 {
 	 	Partition vide;
 	 	gen_partitions(partitions, gen, 0, possibles, vide, 0) ;
 	 }
 	return partitions;
-	//return nbr_partitions;
 }
 
 array<int,taille_gen> sav_multimoniaux;
@@ -603,4 +578,92 @@ Partition unrank(int rang){
 	urk(res, forme, post_forme, possibles, rang, 0, 0, n);
 
 	return res;
+}
+
+int stirling(int n, int k){
+	if(k>n){
+		return 0;
+	}
+	else if (k==n || k==1) {
+		return 1;
+	}
+	else{
+		return stirling(n-1, k-1)+k*stirling(n-1,k);
+	}
+}
+
+int somme_stirling(int n){
+	int res=0;
+	for (int i = 1; i <= n; ++i)
+	{
+		res+=fact(i)*stirling(n, i);	
+	}
+	return res;
+}
+
+const int nbr_partitions = somme_stirling(n);
+
+array<vector<int>,n-1> operation_Fi;
+array<vector<int>,n-1> operation_Si;
+array<vector<int>,n-1> operation_Beg;
+
+
+array<vector<int>,n-1> get_operation_Fi(){
+	return operation_Fi;
+}
+array<vector<int>,n-1> get_operation_Si(){
+	return operation_Si;
+}
+array<vector<int>,n-1> get_operation_Beg(){
+	return operation_Beg;
+}
+
+void affiche_operation(array<vector<int>,n-1> const & operation){
+	for (int i = 0; i < n-1; ++i)
+	{
+		for (int j = 0; j < nbr_partitions; j++)
+		{
+			affiche_partition(unrank(j)) ;
+			cout << "  ->   ";
+			affiche_partition(unrank(operation[i][j]));
+			cout << endl << endl;
+		}
+		cout << endl << endl << endl;
+	}
+}
+
+void init_Fi(){
+	for (int i = 0; i < n-1; ++i)
+	{
+		operation_Fi[i].resize(nbr_partitions);
+		for (int j = 0; j < nbr_partitions; ++j)
+		{
+			operation_Fi[i][j]=ranka(fusionner(unrank(j), i));
+		}
+	}
+}
+
+void init_Si(){
+	for (int i = 0; i < n-1; ++i)
+	{
+		operation_Si[i].resize(nbr_partitions);
+		for (int j = 0; j < nbr_partitions; ++j)
+		{
+			operation_Si[i][j]=ranka(separer(unrank(j),i));
+		}
+	}
+}
+
+void init_Beg(){
+	init_Si();
+	init_Fi();
+	for (int i = 0; i < n-1; ++i)
+	{	
+		operation_Beg[i].resize(nbr_partitions);
+		for (int j = 0; j <= nbr_partitions; j++)
+		{
+			int saut = operation_Fi[i][j];
+			operation_Beg[i][j]=operation_Si[i][saut];
+		}
+	}
 }

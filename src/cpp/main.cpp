@@ -126,21 +126,9 @@ int main(int argc, char const *argv[]){
 
   	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
 	*/
-  	
-	Partition test;
-	test.suite = {1,4,5,7,8,3,6,9,2,10};
-	for (bool &i : test.barres )
-	{
-		i=false;
-	}
-	test.barres[2]=true;
-	test.barres[4]=true;
-	test.barres[7]=true;
-	affiche_partition(test);
-	cout << endl << endl;
-	affiche_partition(fusionner(test,4));
-	cout << endl;
-	
 
+  	init_Beg();
+  	affiche_operation(get_operation_Beg());
+	
 	return 0;
 }
