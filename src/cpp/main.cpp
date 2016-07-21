@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "chaine.hpp"
-#include "partitions.hpp"
+#include "sous_monoide.hpp"
 #include <cilk/cilk_api.h>
 
 using namespace std;
@@ -127,8 +127,10 @@ int main(int argc, char const *argv[]){
   	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
 	*/
 
-  	init_Beg();
-  	affiche_operation(get_operation_Beg());
+	for(auto const &f : get_fonctions()){
+		affiche_fonction(f);
+		cout << endl ;
+	}
 	
 	return 0;
 }

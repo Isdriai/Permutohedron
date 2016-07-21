@@ -6,6 +6,8 @@
 #include "basique.hpp"
 #include <math.h>
 #include <array>
+#include <unordered_map>
+
 
 using namespace std;
 
@@ -359,8 +361,6 @@ vector<Partition> get_partitions(){
 	return partitions;
 }
 
-array<int,taille_gen> sav_multimoniaux;
-
 int multimoniaux(int m, array<int,n> k){
 	int div = 1 ;
 
@@ -369,17 +369,6 @@ int multimoniaux(int m, array<int,n> k){
 	}
 
 	return fact(m)/div;
-}
-
-void init_multimoniaux(){
-	array<bitset<n>,taille_gen> mots_binaires = generation();
-
-	for ( int i = 0 ; i < taille_gen ; i++)
-	{
-		array<int,n> mot = bijection(mots_binaires[i]);
-
-		sav_multimoniaux[i] = multimoniaux(n,mot);
-	}
 }
 
 void enleve(array<int,n> &forme){
@@ -578,92 +567,4 @@ Partition unrank(int rang){
 	urk(res, forme, post_forme, possibles, rang, 0, 0, n);
 
 	return res;
-}
-
-int stirling(int n, int k){
-	if(k>n){
-		return 0;
-	}
-	else if (k==n || k==1) {
-		return 1;
-	}
-	else{
-		return stirling(n-1, k-1)+k*stirling(n-1,k);
-	}
-}
-
-int somme_stirling(int n){
-	int res=0;
-	for (int i = 1; i <= n; ++i)
-	{
-		res+=fact(i)*stirling(n, i);	
-	}
-	return res;
-}
-
-const int nbr_partitions = somme_stirling(n);
-
-array<vector<int>,n-1> operation_Fi;
-array<vector<int>,n-1> operation_Si;
-array<vector<int>,n-1> operation_Beg;
-
-
-array<vector<int>,n-1> get_operation_Fi(){
-	return operation_Fi;
-}
-array<vector<int>,n-1> get_operation_Si(){
-	return operation_Si;
-}
-array<vector<int>,n-1> get_operation_Beg(){
-	return operation_Beg;
-}
-
-void affiche_operation(array<vector<int>,n-1> const & operation){
-	for (int i = 0; i < n-1; ++i)
-	{
-		for (int j = 0; j < nbr_partitions; j++)
-		{
-			affiche_partition(unrank(j)) ;
-			cout << "  ->   ";
-			affiche_partition(unrank(operation[i][j]));
-			cout << endl << endl;
-		}
-		cout << endl << endl << endl;
-	}
-}
-
-void init_Fi(){
-	for (int i = 0; i < n-1; ++i)
-	{
-		operation_Fi[i].resize(nbr_partitions);
-		for (int j = 0; j < nbr_partitions; ++j)
-		{
-			operation_Fi[i][j]=ranka(fusionner(unrank(j), i));
-		}
-	}
-}
-
-void init_Si(){
-	for (int i = 0; i < n-1; ++i)
-	{
-		operation_Si[i].resize(nbr_partitions);
-		for (int j = 0; j < nbr_partitions; ++j)
-		{
-			operation_Si[i][j]=ranka(separer(unrank(j),i));
-		}
-	}
-}
-
-void init_Beg(){
-	init_Si();
-	init_Fi();
-	for (int i = 0; i < n-1; ++i)
-	{	
-		operation_Beg[i].resize(nbr_partitions);
-		for (int j = 0; j <= nbr_partitions; j++)
-		{
-			int saut = operation_Fi[i][j];
-			operation_Beg[i][j]=operation_Si[i][saut];
-		}
-	}
 }
