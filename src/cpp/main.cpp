@@ -127,10 +127,18 @@ int main(int argc, char const *argv[]){
   	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
 	*/
 
-	for(auto const &f : get_fonctions()){
-		affiche_fonction(f);
-		cout << endl ;
-	}
-	
+  	Partition test;
+  	test.suite = {3,1,4,2};
+  	test.barres = {true,true,true};
+
+  	cout << "debut " << endl ;
+
+  	for (Mot m : mots_generateurs(test))
+  	{
+  		affiche_mot(m);
+  		cout << endl;
+  	}
+		
+	cout << " fin " << endl;
 	return 0;
 }

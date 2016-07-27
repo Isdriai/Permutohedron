@@ -125,30 +125,7 @@ array<array<int,n>, taille_gen> gen_comp_n (){
 	return res;
 }
 
-void affiche_tab(array<int,n> v){
- 	for (int i : v )
- 	{
- 		cout << i << " " ;
- 	}
- 
- 	cout << endl ;
- }
-
-template<size_t N>
-void affiche_b(array<bool,N> tab){
-	for (bool b : tab)
- 	{
-		cout << b << " ";
- 	}
-
-	cout << endl;
-}
-
 void affiche_partition(Partition p){
-	// cout << " suite " << endl ;
-	// affiche_tab(p.suite);
-	// cout << " barres " << endl ;
-	// affiche_b(p.barres);
 	for (int i = 0; i < n; ++i)
 	{
 		cout << p.suite[i] << " ";

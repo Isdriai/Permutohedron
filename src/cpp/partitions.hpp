@@ -18,4 +18,4 @@ void gen_partitions
 int ranka(Partition const & p);
 Partition unrank(int rang);
 Partition separer(Partition const & p, int i);
-Partition fusionner(Partition const & p, int i);
+Partition fusionner(Partition const &p, int i);

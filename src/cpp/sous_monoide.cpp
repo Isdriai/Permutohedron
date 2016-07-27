@@ -107,7 +107,7 @@ void init_Beg(){
 	}
 }
 
-typedef list<int> Fonction;
+typedef list<int> Mot;
 
 
 struct hash_vect{
@@ -120,18 +120,18 @@ struct hash_vect{
 	}
 };
 
-struct hash_fonction
+struct hash_mot
 {
-	std::size_t operator()(std::list<int> const& fonction) const {
-  		std::size_t seed = fonction.size();
-  		for(auto& i : fonction) {
+	std::size_t operator()(std::list<int> const& mot) const {
+  		std::size_t seed = mot.size();
+  		for(auto& i : mot) {
    		 	seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   		}
   		return seed;
 	}
 };
 
-void affiche_fonction(Fonction const &f){
+void affiche_mot(Mot const &f){
 	for (int i : f)
 	{
 		cout << i << " " ;
@@ -146,7 +146,7 @@ void affiche_vect(vector<int> const &v){
 	cout << endl;
 }
 
-bool present(Fonction const &xi, unordered_set<vector<int>, hash_vect> &sav_beg_trouve){
+bool present(Mot const &xi, unordered_set<vector<int>, hash_vect> &sav_beg_trouve){
 	vector<int> beg_xi;
 	beg_xi.resize(nbr_partitions);
 	for (int i = 0; i < nbr_partitions; ++i)
@@ -169,19 +169,19 @@ bool present(Fonction const &xi, unordered_set<vector<int>, hash_vect> &sav_beg_
 	}
 }
 
-unordered_set<Fonction, hash_fonction> get_fonctions(){
+unordered_set<Mot, hash_mot> get_mots(){
 	init_Beg();
-	Fonction id={0};
-	stack<Fonction> afaire;
+	Mot id={0};
+	stack<Mot> afaire;
 	afaire.push(id);
-	unordered_set<Fonction, hash_fonction> trouve={id};
+	unordered_set<Mot, hash_mot> trouve={id};
 	unordered_set<vector<int>, hash_vect> sav_beg_trouve;
 	while(!afaire.empty()){
-		Fonction x=afaire.top();
+		Mot x=afaire.top();
 		afaire.pop();
 		for (int i = 1; i < n; ++i)
 		{
-			Fonction xi = x;
+			Mot xi = x;
 			xi.push_back(i);
 			if (!present(xi,sav_beg_trouve)) // regarde si le beg avec xi existe, si non, le rajoute
 			{
@@ -193,3 +193,86 @@ unordered_set<Fonction, hash_fonction> get_fonctions(){
 	return trouve;
 }
 
+bool beg=false;
+
+Partition inverse(Partition const &p, int i){
+	// ATTENTION ! la partition entrée p doit etre une permutation ! On ne peut pas appliquer l'inverse de π_i aussi facilement sinon
+	Partition res = p;
+	int tmp = res.suite[i];
+	res.suite[i]=res.suite[i+1];
+	res.suite[i+1]=tmp;
+	return res;
+}
+
+unordered_set<Mot, hash_mot> mots_generateurs(Partition const &p){
+	cout << " partition representant la permut : " ;
+	for (int i = 0; i < n; ++i)
+	{
+		cout << p.suite[i] << " ";
+	}
+	cout << endl ;
+	if (!beg)
+	{
+		init_Beg();
+		beg=true;
+		cout << " beg init " << endl;
+	}
+	bool descente = false;
+	array<bool,n-1> pi_pre;
+	for (int i = 0; i < n-1; ++i)
+	{
+		if (p.suite[i] > p.suite[i+1])
+		{
+			pi_pre[i]=true;
+			descente=true;
+		}
+		else{
+			pi_pre[i]=false;
+		}
+	}
+
+	unordered_set<Mot, hash_mot> trouve;
+
+	if(!descente){
+		Mot id;
+		id.push_back(0);
+		trouve.insert(id);
+	}
+	else{
+		unordered_set<vector<int>, hash_vect> sav_beg_trouve;
+		stack<Mot> afaire;
+		for (int i = 0; i < n-1; ++i)
+		{
+			if (pi_pre[i])
+			{
+				for (auto f : mots_generateurs(inverse(p, i)))
+				{
+					Mot xi=f;
+					xi.push_back(i);
+					if (!present(xi, sav_beg_trouve))
+					{
+						cout << " ajout a trouve " << endl;
+						trouve.insert(xi);
+						afaire.push(xi);
+					}
+				}
+			}
+		}
+		while(!afaire.empty()){
+			Mot x=afaire.top();
+			afaire.pop();
+			for (int i = 1; i < n; ++i)
+			{
+				Mot xi = x;
+				xi.push_back(i);
+				if (!present(xi,sav_beg_trouve)) 
+				{
+					cout << " ajout a trouve " << endl;
+					trouve.insert(xi);
+					afaire.push(xi);
+				}
+			}
+		}
+	}
+	return trouve;
+}
