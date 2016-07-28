@@ -127,18 +127,30 @@ int main(int argc, char const *argv[]){
   	cout << endl << endl << "nombre de partitions : " << partitions.size() << endl ;
 	*/
 
-  	Partition test;
-  	test.suite = {3,1,4,2};
-  	test.barres = {true,true,true};
+  	int tot = 0 ;
 
-  	cout << "debut " << endl ;
-
-  	for (Mot m : mots_generateurs(test))
+  	for (int i = 0; i < taille; ++i)
   	{
-  		affiche_mot(m);
-  		cout << endl;
+  		for (int j = 0; j < mahonian(n, i); ++j)
+  		{
+  			cout << " maho " << mahonian(i,j) << endl ;
+  			Partition test;
+  			test.suite = unrank(i, j);
+  			for (int k = 0; k < n-1; ++k)
+  			{
+  				test.barres[k]=true;
+  			}
+
+  			cout << " nombre de fonctions liées à la permutation " ;
+  			for (int k = 0; k < n ; ++k)
+  			{
+  				cout << test.suite[k] << " ";
+  			}
+  			int taille_ensemble = mots_generateurs(test).size();
+  			cout << " : " << taille_ensemble << endl << endl ;
+  			tot+=taille_ensemble;
+  		}
   	}
-		
-	cout << " fin " << endl;
+  	cout << " total fonctions : " << tot << endl ;
 	return 0;
 }

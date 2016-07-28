@@ -17,6 +17,7 @@ struct hash_mot
 	}
 };
 
+void init_Beg();
 void affiche_mot(Mot const &f);
 array<vector<int>,n-1> get_operation_Fi();
 array<vector<int>,n-1> get_operation_Si();

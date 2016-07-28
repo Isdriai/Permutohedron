@@ -164,9 +164,23 @@ bool present(Mot const &xi, unordered_set<vector<int>, hash_vect> &sav_beg_trouv
 		return true;
 	}
 	else{
-		sav_beg_trouve.insert(beg_xi);
 		return false;
 	}
+}
+
+void ajouter(Mot const &xi, unordered_set<vector<int>, hash_vect> &sav_beg_trouve){
+	vector<int> beg_xi;
+	beg_xi.resize(nbr_partitions);
+	for (int i = 0; i < nbr_partitions; ++i)
+	{
+		int partition=i;
+		for (int pi : xi)
+		{
+			partition=operation_Beg[pi][partition];
+		}
+		beg_xi[i]=partition;
+	}
+	sav_beg_trouve.insert(beg_xi);
 }
 
 unordered_set<Mot, hash_mot> get_mots(){
@@ -185,6 +199,7 @@ unordered_set<Mot, hash_mot> get_mots(){
 			xi.push_back(i);
 			if (!present(xi,sav_beg_trouve)) // regarde si le beg avec xi existe, si non, le rajoute
 			{
+				ajouter(xi, sav_beg_trouve);
 				trouve.insert(xi);
 				afaire.push(xi);
 			}
@@ -204,75 +219,88 @@ Partition inverse(Partition const &p, int i){
 	return res;
 }
 
+struct hash_array{
+  	std::size_t operator()(std::array<int,n> const& vec) const {
+  		std::size_t seed = vec.size();
+  		for(auto const i : vec) {
+   		 	seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  		}
+  		return seed;
+	}
+};
+
+unordered_map<Permut, unordered_set<Mot, hash_mot>, hash_array> permutation_identite;
 unordered_set<Mot, hash_mot> mots_generateurs(Partition const &p){
-	cout << " partition representant la permut : " ;
-	for (int i = 0; i < n; ++i)
-	{
-		cout << p.suite[i] << " ";
+	try{
+		return permutation_identite.at(p.suite);
 	}
-	cout << endl ;
-	if (!beg)
-	{
-		init_Beg();
-		beg=true;
-		cout << " beg init " << endl;
-	}
-	bool descente = false;
-	array<bool,n-1> pi_pre;
-	for (int i = 0; i < n-1; ++i)
-	{
-		if (p.suite[i] > p.suite[i+1])
+	catch(exception e){
+		if (!beg)
 		{
-			pi_pre[i]=true;
-			descente=true;
+			init_Beg();
+			beg=true;
 		}
-		else{
-			pi_pre[i]=false;
-		}
-	}
-
-	unordered_set<Mot, hash_mot> trouve;
-
-	if(!descente){
-		Mot id;
-		id.push_back(0);
-		trouve.insert(id);
-	}
-	else{
-		unordered_set<vector<int>, hash_vect> sav_beg_trouve;
-		stack<Mot> afaire;
+		bool descente = false;
+		array<bool,n-1> pi_pre;
 		for (int i = 0; i < n-1; ++i)
 		{
-			if (pi_pre[i])
+			if (p.suite[i] > p.suite[i+1])
 			{
-				for (auto f : mots_generateurs(inverse(p, i)))
-				{
-					Mot xi=f;
-					xi.push_back(i);
-					if (!present(xi, sav_beg_trouve))
+				pi_pre[i]=true;
+				descente=true;
+			}
+			else{
+				pi_pre[i]=false;
+			}
+		}
+		unordered_set<Mot, hash_mot> trouve;
+		if(!descente){
+			Mot id;
+			id.push_front(0);
+			trouve.insert(id);
+		}
+		else{
+			unordered_set<vector<int>, hash_vect> sav_beg_trouve;
+			stack<Mot> afaire;
+			for (int i = 0; i < n-1; ++i)
+			{
+				if (pi_pre[i])
+				{ 
+					for (auto f : mots_generateurs(inverse(p, i))) // les operateurs pi_i ne sont pas decalés
 					{
-						cout << " ajout a trouve " << endl;
-						trouve.insert(xi);
-						afaire.push(xi);
+						Mot xi=f;
+						xi.push_front(i+1);
+						if (!present(xi, sav_beg_trouve))
+						{
+							trouve.insert(xi);
+							afaire.push(xi);
+							ajouter(xi, sav_beg_trouve);
+						}
+						break; // une permutation ne va donner qu'une partition differente en lui appliquant pi_i
+					}
+				}
+			}
+			while(!afaire.empty()){
+				Mot x=afaire.top();
+				afaire.pop();
+				for (int i = 1; i < n; ++i)
+				{
+					if (pi_pre[i-1])
+					{
+						Mot xi = x;
+						xi.push_front(i);
+						int rang = ranka(p);
+						if (operation_Beg[i][rang]==rang && !present(xi,sav_beg_trouve)) // regarde si le beg avec xi existe, si non, le rajoute
+						{
+							ajouter(xi, sav_beg_trouve);
+							trouve.insert(xi);
+							afaire.push(xi);
+						}
 					}
 				}
 			}
 		}
-		while(!afaire.empty()){
-			Mot x=afaire.top();
-			afaire.pop();
-			for (int i = 1; i < n; ++i)
-			{
-				Mot xi = x;
-				xi.push_back(i);
-				if (!present(xi,sav_beg_trouve)) 
-				{
-					cout << " ajout a trouve " << endl;
-					trouve.insert(xi);
-					afaire.push(xi);
-				}
-			}
-		}
+		permutation_identite[p.suite]=trouve;
+		return trouve;
 	}
-	return trouve;
 }
