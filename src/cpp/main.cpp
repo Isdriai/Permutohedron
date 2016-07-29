@@ -1,3 +1,13 @@
+/*
+
+IMPORTANT, voici la ligne de compilation pour le programme
+
+g++ -std=c++11 -fcilkplus src/cpp/* -O3 -Wall -o bin/exe -lgmp -lgmpxx
+
+il faut absolument mettre une option -Ox sinon il y a un segfault,
+malheureusement je n'arrive pas à le gérer, ni avec -Wall/-Wextra ni avec gdb
+
+*/
 #include <iostream>
 #include <stdlib.h>
 #include "chaine.hpp"
