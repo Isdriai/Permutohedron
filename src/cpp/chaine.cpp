@@ -112,7 +112,6 @@ vector<Noeud> list_etage(int etage){
 vector<mpz_class> etage(vector<mpz_class> const & etage_fils, int eta){
 	int taille_vect = mahonian(n,eta-2);
 	vector<mpz_class> niveau(taille_vect);
-	int limite = mahonian(n, eta-1);
 	// lecture concurrente seulement -> ca marche 
 	cilk_for (int i=0; i < taille_vect; i++){
 		vector<Permut> fils = succ(unrank(eta-2, i));
@@ -125,7 +124,7 @@ vector<mpz_class> etage(vector<mpz_class> const & etage_fils, int eta){
 }
 
 unordered_map<Permut, longuint, hash_vecteur> etage_ter 
- (unordered_map<Permut, longuint, hash_vecteur> const & etage_fils, int eta){
+ (unordered_map<Permut, longuint, hash_vecteur> const & etage_fils){
 
 	unordered_map<Permut, longuint, hash_vecteur> nouveau;
 	for (auto const & permut : etage_fils)
@@ -182,7 +181,7 @@ longuint chaines_max_ter(){
 	premier_etage[elem]=1;
 
 	while(etage_actuel != 1){
-		premier_etage = etage_ter(premier_etage, etage_actuel);
+		premier_etage = etage_ter(premier_etage);
 		etage_actuel--;
 	}
 

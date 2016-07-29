@@ -216,6 +216,7 @@ int ajust(array<bool,n> const &possibles, int index){
 			index--;
 		}
 	}
+	return 0; // ne doit pas arriver
 }
 
 /*
@@ -536,7 +537,6 @@ Partition unrank(int rang){
 	{
 		possibles[i]=i+1;
 	}
-	int min=0;
 	int num_forme=0;
 	array<int,n>post_forme=tronc(forme, num_forme);
 	forme[num_forme]--;

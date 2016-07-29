@@ -138,7 +138,7 @@ vector<Permut> haut_bas (Permut const & elem, bool (*compare)(int,int)){
 
 	vector<Permut> res;
 
-	for(int i = 0 ; i < elem.size()-1 ; i++){
+	for(unsigned int i = 0 ; i < elem.size()-1 ; i++){
 		Permut tampon = elem;
 
 		if(compare(elem[i], elem[i+1])){
@@ -190,21 +190,22 @@ int ajustement(array<bool,n> & possibles, int index){
 			index--;
 		}
 	}
+	return 0; // ne doit pas arriver
 }
 
 Permut permut_to_lehmer(Code const & lehm){
 	array<bool,n> possibles;
+
 	for (int i = 0; i < n ; ++i)
 	{
 		possibles[i]= true;
 	}
-
 	array<int,n> traduction;
+
 	int cpt=0;
 	for (int i : lehm)
 	{
 		int ajust= ajustement(possibles, i);
-
 		traduction[cpt]=ajust;
 		cpt++;
 	}

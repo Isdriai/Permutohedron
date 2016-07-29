@@ -46,7 +46,7 @@ void show_usage(string name)
 
 template <size_t N>
 bool egale(array<int,N> const & a, array<int,N> const & b){
-	for (int i = 0; i < N; ++i)
+	for (unsigned int i = 0; i < N; ++i)
 	{
 		if (a[i]!=b[i])
 		{
@@ -58,7 +58,7 @@ bool egale(array<int,N> const & a, array<int,N> const & b){
 
 template <size_t N>
 bool egale(array<bool,N> const & a, array<bool,N> const & b){
-	for (int i = 0; i < N; ++i)
+	for (unsigned int i = 0; i < N; ++i)
 	{
 		if (a[i]!=b[i])
 		{
@@ -131,7 +131,7 @@ int main(int argc, char const *argv[]){
 
   	for (int i = 0; i < taille; ++i)
   	{
-  		for (int j = 0; j < mahonian(n, i); ++j)
+  		_Cilk_for (int j = 0; j < mahonian(n, i); ++j)
   		{
   			cout << " maho " << mahonian(i,j) << endl ;
   			Partition test;

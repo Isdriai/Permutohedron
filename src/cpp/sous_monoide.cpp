@@ -266,7 +266,7 @@ unordered_set<Mot, hash_mot> mots_generateurs(Partition const &p){
 			{
 				if (pi_pre[i])
 				{ 
-					for (auto f : mots_generateurs(inverse(p, i))) // les operateurs pi_i ne sont pas decalés
+					for (auto const &f : mots_generateurs(inverse(p, i))) // les operateurs pi_i ne sont pas decalés
 					{
 						Mot xi=f;
 						xi.push_front(i+1);
@@ -276,7 +276,6 @@ unordered_set<Mot, hash_mot> mots_generateurs(Partition const &p){
 							afaire.push(xi);
 							ajouter(xi, sav_beg_trouve);
 						}
-						break; // une permutation ne va donner qu'une partition differente en lui appliquant pi_i
 					}
 				}
 			}
